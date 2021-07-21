@@ -1,8 +1,11 @@
 from aiohttp import web
-from recipes.aiohttp_server.views import get_all_users_handler
+import recipes.aiohttp_server.views as views
 
 
 def setup_routes(app: web.Application):
     app.add_routes([
-        web.get('/users', get_all_users_handler),
+        web.get('/users', views.get_all_users_handler),
+        web.get('/users/{user_id}', views.get_user_profile_handler),
+        web.get('/users/first_ten/', views.get_first_ten_handler),
+        web.get('/recipes/{page}', views.get_active_recipes_handler)
     ])
