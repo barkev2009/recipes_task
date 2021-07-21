@@ -1,0 +1,9 @@
+postgres:
+  database: recipes_db
+  host: 127.0.0.1
+  password: 1111
+  port: 5432
+  user: postgres
+server:
+  host: 127.0.0.1
+  port: 8000
