@@ -1,5 +1,8 @@
 from aiohttp import web
 import recipes.recipe_tables.table_navigation as sql
+from tabulate import tabulate
+from recipes.config.config import *
+from recipes.utils.utils import prepare_for_tab
 
 
 async def get_all_users_handler(request: web.Request):
@@ -60,5 +63,59 @@ async def get_active_recipes_handler(request: web.Request):
             ),
             status=200
         )
+    except Exception as e:
+        return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+
+
+async def sort_recipes_handler(request: web.Request):
+    try:
+        data = await request.json()
+        url = str(request.url)
+        offset = int(url.split('/')[-2])
+        desc_query = False if data.get('desc') == 'false' else True
+        return web.Response(
+            text=tabulate(
+                prepare_for_tab(
+                    sql.sort_recipes(data['sort_by'], desc=desc_query, offset=offset),
+                    RECIPE_KEYS
+                ),
+                headers=RECIPES_HEADERS,
+                tablefmt='grid'
+            ),
+            status=200
+        )
+    except Exception as e:
+        return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+
+
+async def filter_recipes_handler(request: web.Request):
+    try:
+        data = await request.json()
+        offset = int(str(request.url).split('/')[-2])
+        result = sql.filter_recipes(object=data['object'], filter_item=data['item'], offset=offset)
+        if data['object'] not in ['photo', 'tag']:
+            return web.Response(
+                text=tabulate(
+                    prepare_for_tab(
+                        result,
+                        RECIPE_KEYS_FILTER
+                    ),
+                    headers=RECIPES_HEADERS,
+                    tablefmt='grid'
+                ),
+                status=200
+            )
+        else:
+            return web.Response(
+                text=tabulate(
+                    prepare_for_tab(
+                        result,
+                        RECIPE_KEYS_NOT_SINGLE
+                    ),
+                    headers=RECIPES_HEADERS,
+                    tablefmt='grid'
+                ),
+                status=200
+            )
     except Exception as e:
         return web.Response(text=f'Failed to respond to the request: {e}', status=500)

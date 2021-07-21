@@ -33,3 +33,23 @@ class PostgreSQLStarter:
 
     def get_connection_and_cursor(self):
         return self.connection, self.cursor
+
+
+def prepare_for_tab(data, values):
+    output_list = []
+    if 'tuple' in str(type(values[0])) or 'list' in str(type(values[0])):
+        for item in data:
+            to_append = []
+            for value in values:
+                if 'tuple' in str(type(value)) or 'list' in str(type(value)):
+                    if 'list' not in value:
+                        to_append.append(item[value[0]].__dict__[value[1]])
+                    else:
+                        to_append.append('\n'.join(item[value[0]]))
+                else:
+                    to_append.append(item[value])
+            output_list.append(to_append)
+    else:
+        for item in data:
+            output_list.append([item.__dict__[value] for value in values])
+    return output_list

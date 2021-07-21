@@ -1,3 +1,4 @@
 aiohttp
 sqlalchemy
 psycopg2
+tabulate
