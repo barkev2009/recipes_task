@@ -1,6 +1,9 @@
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from recipes.config.config import config
+from aiohttp import web
+import recipes.recipe_tables.table_navigation as sql
+import json
 
 
 class PostgreSQLStarter:
@@ -53,3 +56,45 @@ def prepare_for_tab(data, values):
         for item in data:
             output_list.append([item.__dict__[value] for value in values])
     return output_list
+
+
+def standard_validation_wrapper(func):
+    async def wrapper(request: web.Request):
+        try:
+            return await func(request)
+        except Exception as e:
+            return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+
+    return wrapper
+
+
+def user_validation_wrapper(func):
+    async def wrapper(request: web.Request):
+        try:
+            if sql.check_for_ability(request.headers.get('user')):
+                return await func(request)
+            else:
+                return web.Response(
+                    text=json.dumps({'status': 'failed to authenticate'}, indent=4),
+                    status=401
+                )
+        except Exception as e:
+            return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+
+    return wrapper
+
+
+def user_validation_block_only_wrapper(func):
+    async def wrapper(request: web.Request):
+        try:
+            if sql.check_for_ability(request.headers.get('user'), block_only=True):
+                return await func(request)
+            else:
+                return web.Response(
+                    text=json.dumps({'status': 'failed to authenticate, blocked user'}, indent=4),
+                    status=401
+                )
+        except Exception as e:
+            return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+
+    return wrapper

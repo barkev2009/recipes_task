@@ -97,12 +97,8 @@ def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
                photo_data=None, tags=None, steps=None):
     try:
         new_recipe = Recipe(
-            user_id=user_id,
-            create_date=datetime.now(),
-            recipe_name=recipe_name,
-            recipe_description=recipe_description,
-            food_type=food_type,
-            status='active'
+            user_id=user_id, create_date=datetime.now(), recipe_name=recipe_name, food_type=food_type,
+            recipe_description=recipe_description, status='active'
         )
         session.add(new_recipe)
         session.commit()
