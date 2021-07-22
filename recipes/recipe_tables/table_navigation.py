@@ -137,6 +137,35 @@ def get_recipe(recipe_id):
                .filter(Recipe.id == recipe_id).all(), tag_names, steps
 
 
+def register_new_user(username):
+    try:
+        new_user = User(
+            nickname=username,
+            status='active',
+            online='true'
+        )
+        session.add(new_user)
+        session.commit()
+        return {'message': 'success',
+                'result': f'New user {username} successfully created'}
+    except Exception as e:
+        return {'message': 'failure',
+                'result': f'failed to proceed due to error: {e}'}
+
+
+def change_online_status(username, status):
+    try:
+        session.query(User).filter(User.nickname == username, User.status != 'blocked').update(
+            {'online': status}, synchronize_session='fetch'
+        )
+        session.commit()
+        if status == 'true':
+            return {'message': 'success', 'result': 'You successfully checked in'}
+        return {'message': 'success', 'result': 'You successfully checked out'}
+    except Exception as e:
+        return {'message': 'failure', 'result': f'failed to proceed due to error {e}'}
+
+
 engine = sql.create_engine('postgresql+psycopg2://postgres:1111@localhost/recipes_db_v1')
 session = Session(bind=engine)
 

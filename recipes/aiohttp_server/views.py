@@ -244,3 +244,34 @@ async def get_recipe_handler(request: web.Request):
             )
     except Exception as e:
         return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+
+
+async def register_user_handler(request: web.Request):
+    try:
+        data = await request.json()
+        result = sql.register_new_user(data['new_nickname'])
+        if result['message'] == 'success':
+            return web.Response(text=json.dumps(result, indent=4), status=200)
+        else:
+            return web.Response(text=json.dumps(result, indent=4), status=418)
+    except Exception as e:
+        return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+
+
+async def change_online_status_handler(request: web.Request):
+    try:
+        if sql.check_for_ability(request.headers.get('user'), block_only=True):
+            options = {'online': 'true', 'offline': 'false'}
+            status = options[str(request.url).split('/')[-1]]
+            result = sql.change_online_status(request.headers.get('user'), status)
+            if result['message'] == 'success':
+                return web.Response(text=json.dumps(result, indent=4), status=200)
+            else:
+                return web.Response(text=json.dumps(result, indent=4), status=418)
+        else:
+            return web.Response(
+                text=json.dumps({'status': 'failed to authenticate, blocked user'}, indent=4),
+                status=401
+            )
+    except Exception as e:
+        return web.Response(text=f'Failed to respond to the request: {e}', status=500)
