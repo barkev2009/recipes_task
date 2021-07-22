@@ -10,4 +10,7 @@ def setup_routes(app: web.Application):
         web.get('/recipes/{page}', views.get_active_recipes_handler),
         web.get('/recipes/{page}/sort', views.sort_recipes_handler),
         web.get('/recipes/{page}/filter', views.filter_recipes_handler),
+        web.post('/alter', views.alter_status_handler),
+        web.post('/recipes/add', views.add_recipe_handler),
+        web.get('/show_recipe/{recipe_id}', views.get_recipe_handler)
     ])

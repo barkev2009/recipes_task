@@ -17,11 +17,16 @@ class EnumFoodType(enum.Enum):
     soup, dessert, drink = 'soup', 'dessert', 'drink'
 
 
+class EnumOnline(enum.Enum):
+    true, false = 'true', 'false'
+
+
 class User(Base):
     __tablename__ = 'users'
     id = sql.Column(sql.Integer(), primary_key=True)
     nickname = sql.Column(sql.Text(), nullable=False, unique=True)
     status = sql.Column(sql.Enum(EnumStatus), nullable=False)
+    online = sql.Column(sql.Enum(EnumOnline), nullable=False)
 
 
 class Recipe(Base):
@@ -63,10 +68,23 @@ def create_tables_orm(engine):
     Base.metadata.create_all(engine)
 
 
+def drop_and_create_all():
+    for func in (Base.metadata.drop_all, create_tables_orm):
+        func(engine)
+        print(f'{func.__name__} - successful')
+    for func in (add_sample_users, add_sample_recipes, add_sample_tags, add_sample_photos, add_sample_steps):
+        func()
+        print(f'{func.__name__} - successful')
+
+
 def add_sample_users():
     for i in range(50):
         status = rd.choice(['active', 'blocked'])
-        u = User(nickname=f'user_{i + 1}', status=status)
+        if status == 'blocked':
+            online = 'false'
+        else:
+            online = rd.choice(['true', 'false'])
+        u = User(nickname=f'user_{i + 1}', status=status, online=online)
         session.add(u)
         session.commit()
 
@@ -107,12 +125,24 @@ def add_sample_photos():
         session.commit()
 
 
+def add_sample_steps():
+    for i in range(500):
+        for k in range(rd.randint(1, 7)):
+            step = Step(
+                recipe_id=i + 1,
+                step_number=k,
+                step_description=f'descr_step_{k}_recipe_{i}'
+            )
+            session.add(step)
+            session.commit()
+
+
 engine = sql.create_engine('postgresql+psycopg2://postgres:1111@localhost/recipes_db_v1')
 session = Session(bind=engine)
 
-
 if __name__ == '__main__':
     pass
+    drop_and_create_all()
     # create_tables_orm(engine)
     # add_sample_users()
     # add_sample_recipes()

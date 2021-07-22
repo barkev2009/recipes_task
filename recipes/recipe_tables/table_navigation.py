@@ -1,5 +1,6 @@
 import sqlalchemy as sql
 from sqlalchemy.orm import Session
+from datetime import datetime
 from recipes.recipe_tables.create_tables import User, Recipe, Photo, Tag, Step
 
 
@@ -57,6 +58,44 @@ def filter_recipes(object: str, filter_item: str, offset=0, limit=100):
         return session.query(Recipe, sql.func.count(Photo.photo_url)).filter(Recipe.status == 'active').join(Photo) \
             .filter(Photo.photo_url is not None).group_by(Recipe.id) \
             .order_by(Recipe.id).limit(limit).offset(offset * limit).all()
+
+
+def alter_status(object: str, object_id: int, status: str):
+    try:
+        options = {'user': User, 'recipe': Recipe}
+        to_alter = session.query(options[object.lower()]).get(object_id)
+        to_alter.status = status
+        session.add(to_alter)
+        session.commit()
+        return {'message': 'success', 'result': f'status of {object} | {object_id} set to {status}'}
+    except Exception as e:
+        return {'message': 'failure', 'result': f'failed to proceed due to error: {e}'}
+
+
+def add_recipe(user_id, recipe_name, food_type, recipe_description=None):
+    try:
+        new = Recipe(
+            user_id=user_id,
+            create_date=datetime.now(),
+            recipe_name=recipe_name,
+            recipe_description=recipe_description,
+            food_type=food_type,
+            status='active'
+        )
+        session.add(new)
+        session.commit()
+        return {'message': 'success', 'result': f'new recipe added'}
+    except Exception as e:
+        return {'message': 'failure', 'result': f'failed to proceed due to error: {e}'}
+
+
+def get_recipe(recipe_id):
+    tag_names = (item.__dict__['tag_name'] for item in session.query(Tag).filter(Tag.recipe_id == recipe_id).all())
+    steps = (item.__dict__['step_description'] for item in session.query(Step).filter(Step.recipe_id == recipe_id).all())
+    return session.query(Recipe,
+                         sql.func.array_agg(Photo.photo_url),
+                         User).join(User, Photo).group_by(User.id, Recipe.id) \
+               .filter(Recipe.id == recipe_id).all(), tag_names, steps
 
 
 engine = sql.create_engine('postgresql+psycopg2://postgres:1111@localhost/recipes_db_v1')
