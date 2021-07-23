@@ -36,6 +36,14 @@ Check it out [here](https://editor.swagger.io/) for better document view.
 
 REST API для работы с базой данных пользователей и рецептов.
 
+#### Стек технологий:
+* Язык: Python 3.6
+* Датабаза: PostgreSQL 13.3
+* Основные библиотеки:
+  - aiohttp
+  - sqlalchemy
+  - pytest
+
 Для более удобного тестирования и работы с API рекомендуется установить **Postman**.
 
 Для начала работы с API следуйте, пожалуйста, инструкции ниже:
