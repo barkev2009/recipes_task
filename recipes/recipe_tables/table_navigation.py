@@ -2,6 +2,7 @@ import sqlalchemy as sql
 from sqlalchemy.orm import Session
 from datetime import datetime
 from recipes.recipe_tables.create_tables import User, Recipe, Photo, Tag, Step
+from recipes.config.config import config
 
 
 def check_for_ability(user_name, block_only=False):
@@ -58,7 +59,7 @@ def sort_recipes(sort_by: str, desc=True, offset=0, limit=100, active_only=True)
 def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_only=True):
     active_query = Recipe.status == 'active' if active_only else sql.or_(Recipe.status == 'active',
                                                                          Recipe.status == 'blocked')
-    if 'name' in object.lower():
+    if 'recipe_name' in object.lower():
         return session.query(Recipe).filter(active_query) \
             .filter(sql.or_(Recipe.recipe_name.ilike(f'%{filter_item}'),
                             Recipe.recipe_name.ilike(f'{filter_item}%'))) \
@@ -75,7 +76,7 @@ def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_on
         return session.query(Recipe).filter(active_query).join(User) \
             .filter(User.nickname == filter_item) \
             .order_by(Recipe.id).limit(limit).offset(offset * limit).all()
-    elif 'photo' in object.lower():
+    elif 'photo_name' in object.lower():
         return session.query(Recipe, sql.func.count(Photo.photo_url)).filter(active_query).join(Photo) \
             .filter(Photo.photo_url is not None).group_by(Recipe.id) \
             .order_by(Recipe.id).limit(limit).offset(offset * limit).all()
@@ -88,9 +89,9 @@ def alter_status(object: str, object_id: int, status: str):
         to_alter.status = status
         session.add(to_alter)
         session.commit()
-        return {'message': 'success', 'result': f'status of {object} | {object_id} set to {status}'}
+        return {'message': 'success', 'result': f'status of {object} (ID={object_id}) set to {status}'}
     except Exception as e:
-        return {'message': 'failure', 'result': f'failed to proceed due to error: {e}'}
+        return {'message': 'failure', 'result': f'failed to proceed due to error | {e}'}
 
 
 def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
@@ -120,7 +121,7 @@ def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
             session.commit()
         return {'message': 'success', 'result': f'new recipe added'}
     except Exception as e:
-        return {'message': 'failure', 'result': f'failed to proceed due to error: {e}'}
+        return {'message': 'failure', 'result': f'failed to proceed due to error | {e}'}
 
 
 def get_recipe(recipe_id):
@@ -146,7 +147,7 @@ def register_new_user(username):
                 'result': f'New user {username} successfully created'}
     except Exception as e:
         return {'message': 'failure',
-                'result': f'failed to proceed due to error: {e}'}
+                'result': f'failed to proceed due to error| {e}'}
 
 
 def change_online_status(username, status):
@@ -159,10 +160,11 @@ def change_online_status(username, status):
             return {'message': 'success', 'result': 'You successfully checked in'}
         return {'message': 'success', 'result': 'You successfully checked out'}
     except Exception as e:
-        return {'message': 'failure', 'result': f'failed to proceed due to error {e}'}
+        return {'message': 'failure', 'result': f'failed to proceed due to error | {e}'}
 
 
-engine = sql.create_engine('postgresql+psycopg2://postgres:1111@localhost/recipes_db_v1')
+engine = sql.create_engine('{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}'.format(
+    **config['postgres']))
 session = Session(bind=engine)
 
 if __name__ == '__main__':

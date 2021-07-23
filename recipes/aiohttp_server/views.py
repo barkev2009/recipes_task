@@ -55,10 +55,10 @@ async def get_first_ten_users_handler(request: web.Request):
 
 @utils.user_validation_wrapper
 async def get_active_recipes_handler(request: web.Request):
-    data = await request.json()
+    data = request.query
     url = str(request.url)
     active_only = False if data.get('active_only') == 'false' else True
-    offset = int(url.split('/')[-1])
+    offset = int(url.split('/')[-1].split('?')[0])
     return web.Response(
         text=tabulate(
             utils.prepare_for_tab(
@@ -74,7 +74,7 @@ async def get_active_recipes_handler(request: web.Request):
 
 @utils.user_validation_wrapper
 async def sort_recipes_handler(request: web.Request):
-    data = await request.json()
+    data = request.query
     url = str(request.url)
     offset = int(url.split('/')[-2])
     active_only = False if data.get('active_only') == 'false' else True
@@ -82,7 +82,7 @@ async def sort_recipes_handler(request: web.Request):
     return web.Response(
         text=tabulate(
             utils.prepare_for_tab(
-                sql.sort_recipes(data['sort_by'], desc=desc_query, offset=offset, active_only=active_only),
+                sql.sort_recipes(data['by'], desc=desc_query, offset=offset, active_only=active_only),
                 RECIPE_KEYS
             ),
             headers=RECIPES_HEADERS,
@@ -94,18 +94,15 @@ async def sort_recipes_handler(request: web.Request):
 
 @utils.user_validation_wrapper
 async def filter_recipes_handler(request: web.Request):
-    data = await request.json()
+    data = request.query
     offset = int(str(request.url).split('/')[-2])
     active_only = False if data.get('active_only') == 'false' else True
-    result = sql.filter_recipes(object=data['object'], filter_item=data['item'],
+    result = sql.filter_recipes(object=data['object'], filter_item=data['item_name'],
                                 offset=offset, active_only=active_only)
-    if data['object'] not in ['photo', 'tag']:
+    if data['object'] not in ['photo_name', 'tag']:
         return web.Response(
             text=tabulate(
-                utils.prepare_for_tab(
-                    result,
-                    RECIPE_KEYS_FILTER
-                ),
+                utils.prepare_for_tab(result, RECIPE_KEYS_FILTER),
                 headers=RECIPES_HEADERS,
                 tablefmt='grid'
             ),
@@ -114,10 +111,7 @@ async def filter_recipes_handler(request: web.Request):
     else:
         return web.Response(
             text=tabulate(
-                utils.prepare_for_tab(
-                    result,
-                    RECIPE_KEYS_NOT_SINGLE
-                ),
+                utils.prepare_for_tab(result, RECIPE_KEYS_NOT_SINGLE),
                 headers=RECIPES_HEADERS,
                 tablefmt='grid'
             ),

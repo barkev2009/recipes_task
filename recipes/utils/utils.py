@@ -63,7 +63,7 @@ def standard_validation_wrapper(func):
         try:
             return await func(request)
         except Exception as e:
-            return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+            return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)
 
     return wrapper
 
@@ -75,11 +75,11 @@ def user_validation_wrapper(func):
                 return await func(request)
             else:
                 return web.Response(
-                    text=json.dumps({'status': 'failed to authenticate'}, indent=4),
+                    text=json.dumps({'message': 'failed to authenticate'}, indent=4),
                     status=401
                 )
         except Exception as e:
-            return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+            return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)
 
     return wrapper
 
@@ -91,10 +91,10 @@ def user_validation_block_only_wrapper(func):
                 return await func(request)
             else:
                 return web.Response(
-                    text=json.dumps({'status': 'failed to authenticate, blocked user'}, indent=4),
+                    text=json.dumps({'message': 'failed to authenticate, blocked user'}, indent=4),
                     status=401
                 )
         except Exception as e:
-            return web.Response(text=f'Failed to respond to the request: {e}', status=500)
+            return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)
 
     return wrapper

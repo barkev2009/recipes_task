@@ -1,0 +1,459 @@
+openapi: 3.0.1
+components:
+  responses:
+    Not_Authenticated:
+      description: A failure to authenticate the user in header
+      content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: failed to authenticate
+    Client_Error:
+      description: A failure to accomplish task due to client error
+      content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: failure
+                  result: failed to proceed due to error | CLIENT_ERROR_MESSAGE
+    Internal_Error:
+      description: A failure to provide response due to internal error
+      content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: failure
+                  result: ERROR_MESSAGE
+  parameters:
+    user_header:
+      name: user
+      description: user header (must be active and online)
+      in: header
+      required: true
+      schema:
+        type: string
+    page_number:
+      name: page_number
+      description: Page of recipes table to show (0 is the first page)
+      in: path
+      required: true
+      schema:
+        type: integer
+      example: 0
+info:
+  title: recipe_task
+  description: API for dealing with user recipes, includes admin and user API
+  contact:
+    name: Grigory Kovshov
+    email: barkev2009@bk.ru
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 0.0.1
+servers:
+  - url: 'http://{host}:{port}/api/v1'
+    description: Main server
+    variables:
+      host:
+        default: 127.0.0.1
+        description: local host
+      port:
+        default: '8000'
+paths:
+  /users:
+    get:
+      description: Returns table of all users, if user is validated
+      responses:
+        '200':
+          description: A table of all users
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+    - $ref: '#/components/parameters/user_header'
+  '/users/{nickname}':
+    get:
+      description: Returns a user profile (based on a path nickname)
+      responses:
+        '200':
+          description: A user profile for a certain nickname
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+      - name: nickname
+        description: ID to get limit record of
+        in: path
+        required: true
+        schema:
+          type: string
+        example: user_1
+      - $ref: '#/components/parameters/user_header'
+  '/users/first_ten/':
+    get:
+      description:
+        Returns the first ten active users,
+        sorted by the quantity of their recipes
+        in descending order
+      responses:
+        '200':
+          description: The first ten active users
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+      - $ref: '#/components/parameters/user_header'
+  '/recipes/{page_number}':
+    get:
+      description:
+        Returns a page of recipes
+        (either all of them or juct active ones)
+      responses:
+        '200':
+          description: A user profile for a certain nickname
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+      - $ref: '#/components/parameters/page_number'
+      - $ref: '#/components/parameters/user_header'
+      - name: active_only
+        in: query
+        schema:
+          type: string
+          enum:
+            - 'true'
+            - 'false'
+  /recipes:
+    post:
+      description:
+        Posts a new recipe
+      responses:
+        '200':
+          description: A successful post of new recipe
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: success
+                  result: new recipe added
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '418':
+          $ref: '#/components/responses/Client_Error'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+      requestBody:
+        description: Request body for posting a recipe
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  description: user ID to attach the recipe to
+                  type: integer
+                  example: 1
+                name:
+                  description: name of the new recipe
+                  type: string
+                  example: My Awesome Recipe!
+                type:
+                  description:
+                    food type of the new recipe
+                    (limited to an array of possible values)
+                  type: string
+                  enum:
+                    - 'salad'
+                    - 'first_course'
+                    - 'main_course'
+                    - 'soup'
+                    - 'dessert'
+                    - 'drink'
+                  example: 'main_course'
+                descr:
+                  description: brief description of the new recipe
+                  type: string
+                  example: This recipe will literally blow your mind!
+                photo_data:
+                  description:
+                    photo names and URLs for the recipe
+                    (as respective keys and values of a dict)
+                  type: object
+                  example:
+                    photo_name_1: photo_url_1
+                    photo_name_2: photo_url_2
+                    photo_name_3: photo_url_3
+                steps:
+                  description:
+                    an array of desriptions of steps
+                    needed to cook the new recipe
+                  type: array
+                  items:
+                    type: string
+                  example:
+                   - 'description of 1st step'
+                   - 'description of 2nd step'
+                   - 'description of 3rd step'
+                tags:
+                  description:
+                    an array of tags needed to cook the new recipe
+                  type: array
+                  items:
+                    type: string
+                  example:
+                   - 'tagname_1'
+                   - 'tagname_2'
+                   - 'tagname_3'
+              required:
+                - id
+                - name
+                - type
+    parameters:
+      - $ref: '#/components/parameters/user_header'
+  '/recipes/{page_number}/sort':
+    get:
+      description:
+        Returns a page of recipes sorted in a certain order
+      responses:
+        '200':
+          description: A page of sorted recipes
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+      - $ref: '#/components/parameters/page_number'
+      - $ref: '#/components/parameters/user_header'
+      - name: by
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+            - 'likes'
+            - 'date'
+            - 'name'
+      - name: active_only
+        in: query
+        schema:
+          type: string
+          enum:
+            - 'true'
+            - 'false'
+      - name: desc
+        in: query
+        schema:
+          type: string
+          enum:
+            - 'true'
+            - 'false'
+  '/recipes/{page_number}/filter':
+    get:
+      description:
+        Returns a page of recipes filtered by a certain object
+      responses:
+        '200':
+          description: A page of filtered recipes
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+      - $ref: '#/components/parameters/page_number'
+      - $ref: '#/components/parameters/user_header'
+      - name: active_only
+        in: query
+        schema:
+          type: string
+          enum:
+            - 'true'
+            - 'false'
+      - name: object
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+            - 'recipe_name'
+            - 'tag'
+            - 'food_type'
+            - 'user'
+            - 'photo_name'
+      - name: item_name
+        in: query
+        required: true
+        schema:
+          type: string
+  '/recipes/show_recipe/{recipe_id}':
+    get:
+      description:
+        Returns a recipe by a certain ID with all of its traits
+      responses:
+        '200':
+          description: A full recipe profile
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+      - $ref: '#/components/parameters/user_header'
+      - name: recipe_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        example: 1
+  /alter:
+    put:
+      description:
+        Allows to alter status of recipe or user (available for admin only)
+      responses:
+        '200':
+          description: A full recipe profile
+          content:
+                application/json:
+                  schema:
+                    type: object
+                    example:
+                      message: success
+                      result: status of user (ID=1) set to active
+        '401':
+          description: A failure to authenticate the user in header
+          content:
+                application/json:
+                  schema:
+                    type: object
+                    example:
+                      message: not authorized to alter status
+        '418':
+          $ref: '#/components/responses/Client_Error'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+      requestBody:
+        description: Request body for altering the status of an object
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - object
+                - id
+                - status
+              properties:
+                object:
+                  description:
+                    object to alter status of
+                    (either user of recipe)
+                  type: string
+                  enum:
+                    - 'user'
+                    - 'recipe'
+                  example: user
+                id:
+                  description: ID of the object to alter status of
+                  type: integer
+                  example: 1
+                status:
+                  description:
+                    status to alter (either active or blocked)
+                  type: string
+                  enum:
+                    - 'active'
+                    - 'blocked'
+                  example: 'active'
+    parameters:
+      - name: user
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: header
+        required: true
+        schema:
+          type: string
+  /register:
+    post:
+      description:
+        Registers a new user in the database
+      responses:
+        '200':
+          description: Successfully registered user
+          content:
+                application/json:
+                  schema:
+                    type: object
+                    example:
+                      message: success
+                      result: New user new_user successfully created
+        '418':
+          $ref: '#/components/responses/Client_Error'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+      requestBody:
+        description: Request body for registering a new user
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - new_nickname
+              properties:
+                new_nickname:
+                  description: Nickname of the new user
+                  type: string
+                  example: new_user
+  '/{online_status}':
+    put:
+      description:
+        Allow the user from headers to check in or check out
+      responses:
+        '200':
+          description: Successfully checked in or out
+          content:
+                application/json:
+                  schema:
+                    type: object
+                    example:
+                      message: success
+                      result: You successfully checked in
+        '401':
+          description: Failed to authenticate due to blockage
+          content:
+                application/json:
+                  schema:
+                    type: object
+                    example:
+                      message: failed to authenticate, blocked user
+        '418':
+          $ref: '#/components/responses/Client_Error'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+    parameters:
+      - name: user
+        description: user header (must be active)
+        in: header
+        required: true
+        schema:
+          type: string
+          example: user_1
+      - name: online_status
+        in: path
+        required: true
+        schema:
+          type: string
+          enum:
+            - 'online'
+            - 'offline'
