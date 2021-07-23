@@ -2,3 +2,6 @@ aiohttp
 sqlalchemy
 psycopg2
 tabulate
+pyyaml
+requests
+pytest

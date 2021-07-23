@@ -69,7 +69,9 @@ def create_tables_orm(engine):
 
 
 def drop_and_create_all():
-    for func in (Base.metadata.drop_all, create_tables_orm):
+    for func in [
+            # Base.metadata.drop_all,
+            create_tables_orm]:
         func(engine)
         print(f'{func.__name__} - successful')
     for func in (add_sample_users, add_sample_recipes, add_sample_tags, add_sample_photos, add_sample_steps):
