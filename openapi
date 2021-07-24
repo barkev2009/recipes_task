@@ -474,6 +474,39 @@ paths:
           enum:
             - online
             - offline
+  '/likes/{recipe_id}':
+    put:
+      description:
+        Allows the user to like someone's recipe
+        (headers verification needed)
+      tags:
+        - Additional API
+      responses:
+        '200':
+          description: Successfully liked the recipe
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: success
+                  result: like given to recipe (ID=1)
+        '401':
+          $ref: '#/components/responses/Not_Authenticated'
+        '418':
+          $ref: '#/components/responses/Client_Error'
+        '500':
+          $ref: '#/components/responses/Internal_Error'
+      summary: Allows the user to like recipes
+    parameters:
+      - $ref: '#/components/parameters/user_header'
+      - name: recipe_id
+        in: path
+        description: Recipe ID
+        required: true
+        schema:
+          type: integer
+          example: 1
 tags:
   - name: Getting started
     description: All operations for registering a new user and for checking in or out of the profile.
@@ -483,3 +516,5 @@ tags:
     description: All operations for dealing with recipes
   - name: users
     description: All operations for dealing with user profiles
+  - name: Additional API
+    description: All additional operations

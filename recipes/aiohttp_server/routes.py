@@ -14,5 +14,6 @@ def setup_routes(app: web.Application):
         web.post('/api/v1/recipes', views.add_recipe_handler),
         web.put('/api/v1/alter', views.alter_status_handler),
         web.post('/api/v1/register', views.register_user_handler),
-        web.put('/api/v1/{online_status}', views.change_online_status_handler)
+        web.put('/api/v1/{online_status}', views.change_online_status_handler),
+        web.put('/api/v1/like/1', views.put_like_handler)
     ])

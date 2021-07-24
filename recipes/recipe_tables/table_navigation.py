@@ -5,6 +5,15 @@ from recipes.recipe_tables.create_tables import User, Recipe, Photo, Tag, Step
 from recipes.config.config import config
 
 
+def check_for_client_error(func):
+    def wrapper(*args):
+        try:
+            return func(*args)
+        except Exception as e:
+            return {'message': 'failure', 'result': f'failed to proceed due to error| {e}'}
+    return wrapper
+
+
 def check_for_ability(user_name, block_only=False):
     if user_name is None:
         return False
@@ -59,6 +68,7 @@ def sort_recipes(sort_by: str, desc=True, offset=0, limit=100, active_only=True)
 def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_only=True):
     active_query = Recipe.status == 'active' if active_only else sql.or_(Recipe.status == 'active',
                                                                          Recipe.status == 'blocked')
+    print(active_query, object, filter_item)
     if 'recipe_name' in object.lower():
         return session.query(Recipe).filter(active_query) \
             .filter(sql.or_(Recipe.recipe_name.ilike(f'%{filter_item}'),
@@ -82,46 +92,42 @@ def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_on
             .order_by(Recipe.id).limit(limit).offset(offset * limit).all()
 
 
+@check_for_client_error
 def alter_status(object: str, object_id: int, status: str):
-    try:
-        options = {'user': User, 'recipe': Recipe}
-        to_alter = session.query(options[object.lower()]).get(object_id)
-        to_alter.status = status
-        session.add(to_alter)
-        session.commit()
-        return {'message': 'success', 'result': f'status of {object} (ID={object_id}) set to {status}'}
-    except Exception as e:
-        return {'message': 'failure', 'result': f'failed to proceed due to error | {e}'}
+    options = {'user': User, 'recipe': Recipe}
+    to_alter = session.query(options[object.lower()]).get(object_id)
+    to_alter.status = status
+    session.add(to_alter)
+    session.commit()
+    return {'message': 'success', 'result': f'status of {object} (ID={object_id}) set to {status}'}
 
 
+@check_for_client_error
 def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
                photo_data=None, tags=None, steps=None):
-    try:
-        new_recipe = Recipe(
-            user_id=user_id, create_date=datetime.now(), recipe_name=recipe_name, food_type=food_type,
-            recipe_description=recipe_description, status='active'
-        )
-        session.add(new_recipe)
+    new_recipe = Recipe(
+        user_id=user_id, create_date=datetime.now(), recipe_name=recipe_name, food_type=food_type,
+        recipe_description=recipe_description, status='active'
+    )
+    session.add(new_recipe)
+    session.commit()
+    recipe_id = session.query(Recipe.id).all()[-1][0]
+    if photo_data is None:
+        photo_data = {'no_names': 'no_urls'}
+    if tags is None:
+        tags = ['no_tags']
+    if steps is None:
+        steps = ['no_steps']
+    for k, v in photo_data.items():
+        session.add(Photo(recipe_id=recipe_id, photo_name=k, photo_url=v))
         session.commit()
-        recipe_id = session.query(Recipe.id).all()[-1][0]
-        if photo_data is None:
-            photo_data = {'no_names': 'no_urls'}
-        if tags is None:
-            tags = ['no_tags']
-        if steps is None:
-            steps = ['no_steps']
-        for k, v in photo_data.items():
-            session.add(Photo(recipe_id=recipe_id, photo_name=k, photo_url=v))
-            session.commit()
-        for i, step in enumerate(steps):
-            session.add(Step(recipe_id=recipe_id, step_number=i + 1, step_description=step))
-            session.commit()
-        for tag in tags:
-            session.add(Tag(recipe_id=recipe_id, tag_name=tag))
-            session.commit()
-        return {'message': 'success', 'result': f'new recipe added'}
-    except Exception as e:
-        return {'message': 'failure', 'result': f'failed to proceed due to error | {e}'}
+    for i, step in enumerate(steps):
+        session.add(Step(recipe_id=recipe_id, step_number=i + 1, step_description=step))
+        session.commit()
+    for tag in tags:
+        session.add(Tag(recipe_id=recipe_id, tag_name=tag))
+        session.commit()
+    return {'message': 'success', 'result': f'new recipe added'}
 
 
 def get_recipe(recipe_id):
@@ -134,33 +140,37 @@ def get_recipe(recipe_id):
                .filter(Recipe.id == recipe_id).all(), tag_names, steps
 
 
+@check_for_client_error
 def register_new_user(username):
-    try:
-        new_user = User(
-            nickname=username,
-            status='active',
-            online='true'
-        )
-        session.add(new_user)
-        session.commit()
-        return {'message': 'success',
-                'result': f'New user {username} successfully created'}
-    except Exception as e:
-        return {'message': 'failure',
-                'result': f'failed to proceed due to error| {e}'}
+    new_user = User(
+        nickname=username,
+        status='active',
+        online='true'
+    )
+    session.add(new_user)
+    session.commit()
+    return {'message': 'success',
+            'result': f'New user {username} successfully created'}
 
 
+@check_for_client_error
 def change_online_status(username, status):
-    try:
-        session.query(User).filter(User.nickname == username, User.status != 'blocked').update(
-            {'online': status}, synchronize_session='fetch'
-        )
-        session.commit()
-        if status == 'true':
-            return {'message': 'success', 'result': 'You successfully checked in'}
-        return {'message': 'success', 'result': 'You successfully checked out'}
-    except Exception as e:
-        return {'message': 'failure', 'result': f'failed to proceed due to error | {e}'}
+    session.query(User).filter(User.nickname == username, User.status != 'blocked').update(
+        {'online': status}, synchronize_session='fetch'
+    )
+    session.commit()
+    if status == 'true':
+        return {'message': 'success', 'result': 'You successfully checked in'}
+    return {'message': 'success', 'result': 'You successfully checked out'}
+
+
+@check_for_client_error
+def put_like(recipe_id):
+    recipe = session.query(Recipe).get(recipe_id)
+    recipe.likes += 1
+    session.add(recipe)
+    session.commit()
+    return {'message': 'success', 'result': f'like given to recipe (ID={recipe_id})'}
 
 
 engine = sql.create_engine('{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}'.format(
@@ -168,5 +178,8 @@ engine = sql.create_engine('{dialect}+{driver}://{user}:{password}@{host}:{port}
 session = Session(bind=engine)
 
 if __name__ == '__main__':
+    pass
     # print(*(item.__dict__['nickname'] for item in get_all_users()), sep='\n')
-    print(*(item.__dict__['recipe_name'] for item in get_active_recipes(offset=3)), sep='\n')
+    # print(*(item.__dict__['recipe_name'] for item in get_active_recipes(offset=3)), sep='\n')
+    # print(session.query(Recipe).filter(Recipe.status == 'active').join(User).filter(User.nickname == 'user_1').all())
+    put_like(1)

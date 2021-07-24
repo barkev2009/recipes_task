@@ -23,8 +23,7 @@ async def get_all_users_handler(request: web.Request):
 
 @utils.user_validation_wrapper
 async def get_user_profile_handler(request: web.Request):
-    url = request.url
-    username = str(url).split('/')[-1]
+    username = request.path.split('/')[-1]
     return web.Response(
         text=tabulate(
             utils.prepare_for_tab(
@@ -56,9 +55,8 @@ async def get_first_ten_users_handler(request: web.Request):
 @utils.user_validation_wrapper
 async def get_active_recipes_handler(request: web.Request):
     data = request.query
-    url = str(request.url)
     active_only = False if data.get('active_only') == 'false' else True
-    offset = int(url.split('/')[-1].split('?')[0])
+    offset = int(request.path.split('/')[-1])
     return web.Response(
         text=tabulate(
             utils.prepare_for_tab(
@@ -75,8 +73,7 @@ async def get_active_recipes_handler(request: web.Request):
 @utils.user_validation_wrapper
 async def sort_recipes_handler(request: web.Request):
     data = request.query
-    url = str(request.url)
-    offset = int(url.split('/')[-2])
+    offset = int(request.path.split('/')[-2])
     active_only = False if data.get('active_only') == 'false' else True
     desc_query = False if data.get('desc') == 'false' else True
     return web.Response(
@@ -95,10 +92,11 @@ async def sort_recipes_handler(request: web.Request):
 @utils.user_validation_wrapper
 async def filter_recipes_handler(request: web.Request):
     data = request.query
-    offset = int(str(request.url).split('/')[-2])
+    offset = int(request.path.split('/')[-2])
     active_only = False if data.get('active_only') == 'false' else True
     result = sql.filter_recipes(object=data['object'], filter_item=data['item_name'],
                                 offset=offset, active_only=active_only)
+    print(result)
     if data['object'] not in ['photo_name', 'tag']:
         return web.Response(
             text=tabulate(
@@ -125,10 +123,8 @@ async def alter_status_handler(request: web.Request):
     if all([request.headers.get('token') == config['admin_data']['password'],
             request.headers.get('user') == 'admin']):
         result = sql.alter_status(data['object'], int(data['id']), data['status'])
-        if result['message'] == 'success':
-            return web.Response(text=json.dumps(result, indent=4), status=200)
-        else:
-            return web.Response(text=json.dumps(result, indent=4), status=418)
+        return web.Response(text=json.dumps(result, indent=4),
+                            status=200 if result['message'] == 'success' else 418)
     else:
         return web.Response(text=json.dumps({'message': 'failure',
                                              'result': 'not authorized to alter status'}, indent=4),
@@ -145,16 +141,13 @@ async def add_recipe_handler(request: web.Request):
                             photo_data=data.get('photo_data'),
                             steps=data.get('steps'),
                             tags=data.get('tags'))
-    if result['message'] == 'success':
-        return web.Response(text=json.dumps(result, indent=4), status=200)
-    else:
-        return web.Response(text=json.dumps(result, indent=4), status=418)
+    return web.Response(text=json.dumps(result, indent=4),
+                        status=200 if result['message'] == 'success' else 418)
 
 
 @utils.user_validation_wrapper
 async def get_recipe_handler(request: web.Request):
-    url = str(request.url)
-    recipe_id = int(url.split('/')[-1])
+    recipe_id = int(request.path.split('/')[-1])
     main_block, tag_block, step_block = sql.get_recipe(recipe_id)
     to_tabulate = utils.prepare_for_tab(
         main_block,
@@ -179,18 +172,22 @@ async def get_recipe_handler(request: web.Request):
 async def register_user_handler(request: web.Request):
     data = await request.json()
     result = sql.register_new_user(data['new_nickname'])
-    if result['message'] == 'success':
-        return web.Response(text=json.dumps(result, indent=4), status=200)
-    else:
-        return web.Response(text=json.dumps(result, indent=4), status=418)
+    return web.Response(text=json.dumps(result, indent=4),
+                        status=200 if result['message'] == 'success' else 418)
 
 
 @utils.user_validation_block_only_wrapper
 async def change_online_status_handler(request: web.Request):
     options = {'online': 'true', 'offline': 'false'}
-    status = options[str(request.url).split('/')[-1]]
+    status = options[request.path.split('/')[-1]]
     result = sql.change_online_status(request.headers.get('user'), status)
-    if result['message'] == 'success':
-        return web.Response(text=json.dumps(result, indent=4), status=200)
-    else:
-        return web.Response(text=json.dumps(result, indent=4), status=418)
+    return web.Response(text=json.dumps(result, indent=4),
+                        status=200 if result['message'] == 'success' else 418)
+
+
+@utils.user_validation_wrapper
+async def put_like_handler(request: web.Request):
+    recipe_id = request.path.split('/')[-1]
+    result = sql.put_like(recipe_id)
+    return web.Response(text=json.dumps(result, indent=4),
+                        status=200 if result['message'] == 'success' else 418)
