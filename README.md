@@ -19,8 +19,9 @@ To start working with the API please follow the steps:
 ```recipes/recipe_tables/init_db.py``` and
 ```recipes/recipe_tables/create_tables.py```. 
 The name of the database can be changed in ```recipes/config/config.yaml```.
-3. Admin configurations for API have been already set for you in 
-```recipes/config/config.yaml```. You are free to alter them.
+3. Create ```.env``` file in the root directory (Shell-format) and create a password variable: 
+```PASSWORD=your_password```. The password will be added to environmanet variables and can be accessed
+via ```dotenv``` library.
 4. Start ```recipes/aiohttp_server/main.py``` and feel free to test the API, 
 either through ```recipes/tests/tests.py``` or via **Postman** app.
 >All configurations for working with PostgreSQL and API
@@ -51,8 +52,9 @@ REST API для работы с базой данных пользователе
 2. Инициализируйте базу данных **recipes_db** и все таблицы с помощью
 ```recipes/recipe_tables/init_db.py``` и . ```recipes/recipe_tables/create_tables.py```
 Название БД может быть изменено в ```recipes/config/config.yaml```.
-3. Параметры администратора для API уже были настроены для Вас в
-```recipes/config/config.yaml```. Можете их при желании изменить.
+3. Создайте файл ```.env``` в корневой папке (формат скрипта Shell) и заведите переменную для пароля: 
+```PASSWORD=ваш_пароль```. Пароль будет добавлен к переменным окружения и будет доступен
+через библиотеку ```dotenv```.
 4. Запустите ```recipes/aiohttp_server/main.py``` и тестируйте API либо через 
 ```recipes/tests/tests.py```, либо через приложение **Postman**.
 >Все конфигурации для работы с PostgreSQL и API

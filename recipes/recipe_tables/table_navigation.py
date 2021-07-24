@@ -2,7 +2,7 @@ import sqlalchemy as sql
 from sqlalchemy.orm import Session
 from datetime import datetime
 from recipes.recipe_tables.create_tables import User, Recipe, Photo, Tag, Step, EnumStatus, EnumOnline
-from recipes.config.config import config
+from recipes.config.config import config, FOOD_TYPES
 
 
 def check_for_client_error(func):
@@ -11,9 +11,9 @@ def check_for_client_error(func):
     :param func:
     :return:
     """
-    def wrapper(*args):
+    def wrapper(*args, **kwargs):
         try:
-            return func(*args)
+            return func(*args, **kwargs)
         except Exception as e:
             return {'message': 'failure', 'result': f'failed to proceed due to error| {e}'}
     return wrapper
@@ -161,7 +161,7 @@ def alter_status(object: str, object_id: int, status: str):
 
 
 @check_for_client_error
-def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
+def add_recipe(user_name, recipe_name, food_type, recipe_description=None,
                photo_data=None, tags=None, steps=None):
     """
     Adds a recipe to the database (available for online users and admin)
@@ -174,6 +174,9 @@ def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
     :param steps:
     :return:
     """
+    user_id = int(session.query(User.id).filter(User.nickname == user_name).one()[0])
+    if food_type not in FOOD_TYPES:
+        return {'message': 'failure', 'result': f'wrong food type'}
     new_recipe = Recipe(
         user_id=user_id, create_date=datetime.now(), recipe_name=recipe_name, food_type=food_type,
         recipe_description=recipe_description, status='active'

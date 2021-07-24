@@ -80,8 +80,9 @@ def drop_and_create_all():
 
 
 def add_sample_users():
+    options = {0: 'active', 1: 'blocked'}
     for i in range(50):
-        status = rd.choice(['active', 'blocked'])
+        status = options[i] if i == 0 or i == 1 else rd.choice(['active', 'blocked'])
         if status == 'blocked':
             online = 'false'
         else:

@@ -120,7 +120,7 @@ async def filter_recipes_handler(request: web.Request):
 @utils.standard_validation_wrapper
 async def alter_status_handler(request: web.Request):
     data = await request.json()
-    if all([request.headers.get('token') == config['password'],
+    if all([request.headers.get('password') == config['password'],
             request.headers.get('user') == 'admin']):
         result = sql.alter_status(data['object'], int(data['id']), data['status'])
         return web.Response(text=json.dumps(result, indent=4),
@@ -134,7 +134,7 @@ async def alter_status_handler(request: web.Request):
 @utils.user_validation_wrapper
 async def add_recipe_handler(request: web.Request):
     data = await request.json()
-    result = sql.add_recipe(int(data['id']),
+    result = sql.add_recipe(request.headers['user'],
                             data['name'],
                             data['type'],
                             data.get('descr'),
