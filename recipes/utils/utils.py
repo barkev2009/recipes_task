@@ -35,16 +35,26 @@ class PostgreSQLStarter:
             self.cursor = self.connection.cursor()
 
     def get_connection_and_cursor(self):
+        """
+        Returns connection and cursor instances to the user
+        :return:
+        """
         return self.connection, self.cursor
 
 
 def prepare_for_tab(data, values):
+    """
+    Prepares data for printing with the help of 'tabulate' function
+    :param data:
+    :param values:
+    :return:
+    """
     output_list = []
-    if 'tuple' in str(type(values[0])) or 'list' in str(type(values[0])):
+    if type(values[0]) is tuple or type(values[0]) is list:
         for item in data:
             to_append = []
             for value in values:
-                if 'tuple' in str(type(value)) or 'list' in str(type(value)):
+                if type(value) is tuple or type(value) is list:
                     if 'list' not in value:
                         to_append.append(item[value[0]].__dict__[value[1]])
                     else:
@@ -59,6 +69,11 @@ def prepare_for_tab(data, values):
 
 
 def standard_validation_wrapper(func):
+    """
+    Decorator for standard Internal Error response
+    :param func:
+    :return:
+    """
     async def wrapper(request: web.Request):
         try:
             return await func(request)
@@ -69,6 +84,11 @@ def standard_validation_wrapper(func):
 
 
 def user_validation_wrapper(func):
+    """
+    Decorator for validating the user (check if he is online and not blocked)
+    :param func:
+    :return:
+    """
     async def wrapper(request: web.Request):
         try:
             if sql.check_for_ability(request.headers.get('user')):
@@ -85,9 +105,14 @@ def user_validation_wrapper(func):
 
 
 def user_validation_block_only_wrapper(func):
+    """
+    Decorator for validating the user (check if he is online)
+    :param func:
+    :return:
+    """
     async def wrapper(request: web.Request):
         try:
-            if sql.check_for_ability(request.headers.get('user'), block_only=True):
+            if sql.check_for_ability(request.headers.get('user'), active_only=True):
                 return await func(request)
             else:
                 return web.Response(

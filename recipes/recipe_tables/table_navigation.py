@@ -1,11 +1,16 @@
 import sqlalchemy as sql
 from sqlalchemy.orm import Session
 from datetime import datetime
-from recipes.recipe_tables.create_tables import User, Recipe, Photo, Tag, Step
+from recipes.recipe_tables.create_tables import User, Recipe, Photo, Tag, Step, EnumStatus, EnumOnline
 from recipes.config.config import config
 
 
 def check_for_client_error(func):
+    """
+    Decorator for safe function work (returns an error message instead of raising one)
+    :param func:
+    :return:
+    """
     def wrapper(*args):
         try:
             return func(*args)
@@ -14,7 +19,14 @@ def check_for_client_error(func):
     return wrapper
 
 
-def check_for_ability(user_name, block_only=False):
+def check_for_ability(user_name, active_only=False):
+    """
+    User validation, returns True if he is admin or active and online
+    (active_only checks only for active status)
+    :param user_name:
+    :param active_only:
+    :return:
+    """
     if user_name is None:
         return False
     elif user_name == 'admin':
@@ -22,29 +34,50 @@ def check_for_ability(user_name, block_only=False):
     else:
         check = session.query(User.status, User.online).filter(User.nickname == user_name).one()
         if any((
-                all((block_only, str(check['status']).split('.')[-1] == 'active')),
-                all((str(check['status']).split('.')[-1] == 'active', str(check['online']).split('.')[-1] == 'true'))
+                all((active_only, check['status'] is EnumStatus.active)),
+                all((check['status'] is EnumStatus.active, check['online'] is EnumOnline.true))
         )):
             return True
         return False
 
 
 def get_all_users():
+    """
+    Returns all users from the database
+    :return:
+    """
     return session.query(User).order_by(User.id).all()
 
 
 def get_user_profile(username):
+    """
+    Returns user profile by the username/nickname (for active users only)
+    :param username:
+    :return:
+    """
     return session.query(User, sql.func.count(User.id)).join(Recipe). \
         filter(User.nickname == username, User.status == 'active').group_by(User.id).all()
 
 
 def get_first_ten_by_recipes():
+    """
+    Returns the first ten active users by the quantity of their recipes,
+    sorted in descending order
+    :return:
+    """
     return session.query(User, sql.func.count(User.id)) \
         .join(Recipe).order_by(sql.func.count(User.id).desc()) \
         .filter(User.status == 'active').group_by(User.id).limit(10).all()
 
 
 def get_active_recipes(offset=0, limit=100, active_only=True):
+    """
+    Returns the table of active (or all) recipes, includes pagination
+    :param offset:
+    :param limit:
+    :param active_only:
+    :return:
+    """
     active_query = Recipe.status == 'active' if active_only else sql.or_(Recipe.status == 'active',
                                                                          Recipe.status == 'blocked')
     return session.query(Recipe, sql.func.array_agg(Tag.tag_name)).filter(active_query) \
@@ -52,6 +85,15 @@ def get_active_recipes(offset=0, limit=100, active_only=True):
 
 
 def sort_recipes(sort_by: str, desc=True, offset=0, limit=100, active_only=True):
+    """
+    Returns active (or all) recipes, sorted by a certain item, includes pagination
+    :param sort_by: object type to sort by, can be either date, likes or name
+    :param desc:
+    :param offset:
+    :param limit:
+    :param active_only:
+    :return:
+    """
     sort_query = ''
     active_query = Recipe.status == 'active' if active_only else sql.or_(Recipe.status == 'active',
                                                                          Recipe.status == 'blocked')
@@ -66,6 +108,15 @@ def sort_recipes(sort_by: str, desc=True, offset=0, limit=100, active_only=True)
 
 
 def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_only=True):
+    """
+    Returns active (or all) recipes, filtered by a certain item, includes pagination
+    :param object: object type to filter by, can be either recipe_name, tag, food_type, user or photo_name
+    :param filter_item: value of the object
+    :param offset:
+    :param limit:
+    :param active_only:
+    :return:
+    """
     active_query = Recipe.status == 'active' if active_only else sql.or_(Recipe.status == 'active',
                                                                          Recipe.status == 'blocked')
     print(active_query, object, filter_item)
@@ -94,6 +145,13 @@ def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_on
 
 @check_for_client_error
 def alter_status(object: str, object_id: int, status: str):
+    """
+    Changes the status (active or blocked) of either a user or a recipe
+    :param object: user or recipe
+    :param object_id: active or blocked
+    :param status:
+    :return:
+    """
     options = {'user': User, 'recipe': Recipe}
     to_alter = session.query(options[object.lower()]).get(object_id)
     to_alter.status = status
@@ -105,6 +163,17 @@ def alter_status(object: str, object_id: int, status: str):
 @check_for_client_error
 def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
                photo_data=None, tags=None, steps=None):
+    """
+    Adds a recipe to the database (available for online users and admin)
+    :param user_id:
+    :param recipe_name:
+    :param food_type:
+    :param recipe_description:
+    :param photo_data:
+    :param tags:
+    :param steps:
+    :return:
+    """
     new_recipe = Recipe(
         user_id=user_id, create_date=datetime.now(), recipe_name=recipe_name, food_type=food_type,
         recipe_description=recipe_description, status='active'
@@ -131,6 +200,11 @@ def add_recipe(user_id, recipe_name, food_type, recipe_description=None,
 
 
 def get_recipe(recipe_id):
+    """
+    Returns a recipe profile by its ID
+    :param recipe_id:
+    :return:
+    """
     tag_names = (item.__dict__['tag_name'] for item in session.query(Tag).filter(Tag.recipe_id == recipe_id).all())
     steps = (item.__dict__['step_description'] for item in
              session.query(Step).filter(Step.recipe_id == recipe_id).all())
@@ -142,6 +216,11 @@ def get_recipe(recipe_id):
 
 @check_for_client_error
 def register_new_user(username):
+    """
+    Registers a new user
+    :param username:
+    :return:
+    """
     new_user = User(
         nickname=username,
         status='active',
@@ -155,6 +234,12 @@ def register_new_user(username):
 
 @check_for_client_error
 def change_online_status(username, status):
+    """
+    Lets the active user to check in or check out of his/her profile
+    :param username:
+    :param status:
+    :return:
+    """
     session.query(User).filter(User.nickname == username, User.status != 'blocked').update(
         {'online': status}, synchronize_session='fetch'
     )
@@ -166,6 +251,11 @@ def change_online_status(username, status):
 
 @check_for_client_error
 def put_like(recipe_id):
+    """
+    Allows the user to put a like to a certain recipe by its ID
+    :param recipe_id:
+    :return:
+    """
     recipe = session.query(Recipe).get(recipe_id)
     recipe.likes += 1
     session.add(recipe)
