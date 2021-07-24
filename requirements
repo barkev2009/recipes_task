@@ -5,3 +5,4 @@ tabulate
 pyyaml
 requests
 pytest
+python-dotenv

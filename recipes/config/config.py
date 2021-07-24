@@ -1,8 +1,10 @@
 import yaml
+from dotenv import dotenv_values
 
 with open('../config/config.yaml') as file:
     config = yaml.safe_load(file)
 
+config['password'] = dotenv_values()['PASSWORD']
 # Headers for recipes' table
 RECIPES_HEADERS = ('Recipe ID', 'User ID', 'Recipe Name', 'Creation Date',
                    'Recipe Description', 'Likes', 'Recipe Status', 'Tags')
