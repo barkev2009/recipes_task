@@ -94,10 +94,9 @@ async def filter_recipes_handler(request: web.Request):
     data = request.query
     offset = int(request.path.split('/')[-2])
     active_only = False if data.get('active_only') == 'false' else True
-    result = sql.filter_recipes(object=data['object'], filter_item=data['item_name'],
+    result = sql.filter_recipes(object=data['by'], filter_item=data['named'],
                                 offset=offset, active_only=active_only)
-    print(result)
-    if data['object'] not in ['photo_name', 'tag']:
+    if data['by'] not in ['photo_name', 'tag']:
         return web.Response(
             text=tabulate(
                 utils.prepare_for_tab(result, RECIPE_KEYS_FILTER),

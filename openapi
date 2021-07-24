@@ -144,10 +144,6 @@ paths:
             schema:
               type: object
               properties:
-                id:
-                  description: user ID to attach the recipe to
-                  type: integer
-                  example: 1
                 name:
                   description: name of the new recipe
                   type: string
@@ -290,7 +286,7 @@ paths:
           enum:
             - 'true'
             - 'false'
-      - name: object
+      - name: by
         in: query
         required: true
         schema:
@@ -301,7 +297,7 @@ paths:
             - food_type
             - user
             - photo_name
-      - name: item_name
+      - name: named
         in: query
         required: true
         schema:

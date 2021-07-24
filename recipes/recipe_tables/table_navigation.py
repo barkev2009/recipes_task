@@ -119,7 +119,6 @@ def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_on
     """
     active_query = Recipe.status == 'active' if active_only else sql.or_(Recipe.status == 'active',
                                                                          Recipe.status == 'blocked')
-    print(active_query, object, filter_item)
     if 'recipe_name' in object.lower():
         return session.query(Recipe).filter(active_query) \
             .filter(sql.or_(Recipe.recipe_name.ilike(f'%{filter_item}'),

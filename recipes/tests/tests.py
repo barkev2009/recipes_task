@@ -90,6 +90,79 @@ def test_add_recipe_not_auth():
     assert response.status_code == 401
 
 
+def test_get_recipes():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0', headers={'user': 'user_1'})
+    assert response.status_code == 200
+
+
+def test_get_recipes_all():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0?active_only=false', headers={'user': 'user_1'})
+    assert response.status_code == 200
+
+
+def test_get_recipes_not_auth():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0?active_only=false', headers={'user': 'user_2'})
+    assert response.status_code == 401
+
+
+def test_get_recipes_incorrect_path():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes', headers={'user': 'user_1'})
+    assert response.status_code == 405
+
+
+def test_sort_recipes_likes():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/sort?by=likes', headers={'user': 'user_1'})
+    assert response.status_code == 200
+
+
+def test_sort_recipes_name_not_desc():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/sort?by=name&desc=false',
+                            headers={'user': 'user_1'})
+    assert response.status_code == 200
+
+
+def test_sort_recipes_date_incorrect_path():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/sort?by=name&desc=false',
+                            headers={'user': 'user_1'})
+    assert response.status_code == 500
+
+
+def test_sort_recipes_date_incorrect_sorter():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/sort?by=wrong',
+                            headers={'user': 'user_1'})
+    assert response.status_code == 500
+
+
+def test_sort_recipes_date_not_auth():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/sort?by=likes',
+                            headers={'user': 'user_2'})
+    assert response.status_code == 401
+
+
+def test_filter_recipes_user_active():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/filter?by=user&named=user_1',
+                            headers={'user': 'user_1'})
+    assert response.status_code == 200
+
+
+def test_filter_recipes_tag_all():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/filter?by=tag&named=tagname_1&active_only=false',
+                            headers={'user': 'user_1'})
+    assert response.status_code == 200
+
+
+def test_filter_recipes_not_auth():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/filter?by=user&named=user_1',
+                            headers={'user': 'user_2'})
+    assert response.status_code == 401
+
+
+def test_filter_recipes_incorrect_path():
+    response = requests.get('http://127.0.0.1:8000/api/v1/recipes/0/filter?by=wrong&named=user_1',
+                            headers={'user': 'user_1'})
+    assert response.status_code == 500
+
+
 def test_get_all_users():
-    response = requests.get('http://127.0.0.1:8000/api/v1/users', headers={'user': 'admin'})
+    response = requests.get('http://127.0.0.1:8000/api/v1/users', headers={'user': 'user_1'})
     assert response.status_code == 200
