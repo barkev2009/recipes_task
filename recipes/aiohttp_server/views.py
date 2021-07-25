@@ -127,7 +127,7 @@ async def alter_status_handler(request: web.Request):
     else:
         return web.Response(text=json.dumps({'message': 'failure',
                                              'result': 'not authorized to alter status'}, indent=4),
-                            status=401)
+                            status=403)
 
 
 @utils.user_validation_wrapper

@@ -96,7 +96,7 @@ def user_validation_wrapper(func):
             else:
                 return web.Response(
                     text=json.dumps({'message': 'failed to authenticate'}, indent=4),
-                    status=401
+                    status=403
                 )
         except Exception as e:
             return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)
@@ -117,7 +117,7 @@ def user_validation_block_only_wrapper(func):
             else:
                 return web.Response(
                     text=json.dumps({'message': 'failed to authenticate, blocked user'}, indent=4),
-                    status=401
+                    status=403
                 )
         except Exception as e:
             return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)

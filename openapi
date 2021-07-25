@@ -71,7 +71,7 @@ paths:
       responses:
         '200':
           description: A table of all users
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
@@ -86,7 +86,7 @@ paths:
       responses:
         '200':
           description: A user profile for a certain nickname
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
@@ -108,7 +108,7 @@ paths:
       responses:
         '200':
           description: The first ten active users
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
@@ -130,7 +130,7 @@ paths:
                 example:
                   message: success
                   result: new recipe added
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '418':
           $ref: '#/components/responses/Client_Error'
@@ -209,7 +209,7 @@ paths:
       responses:
         '200':
           description: A user profile for a certain nickname
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
@@ -232,7 +232,7 @@ paths:
       responses:
         '200':
           description: A page of sorted recipes
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
@@ -271,7 +271,7 @@ paths:
       responses:
         '200':
           description: A page of filtered recipes
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
@@ -310,7 +310,7 @@ paths:
       responses:
         '200':
           description: A full recipe profile
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
@@ -338,7 +338,7 @@ paths:
                 example:
                   message: success
                   result: status of user (ID=1) set to active
-        '401':
+        '403':
           description: A failure to authenticate the user in header
           content:
             application/json:
@@ -441,7 +441,7 @@ paths:
                 example:
                   message: success
                   result: You successfully checked in
-        '401':
+        '403':
           description: Failed to authenticate due to blockage
           content:
             application/json:
@@ -487,7 +487,7 @@ paths:
                 example:
                   message: success
                   result: like given to recipe (ID=1)
-        '401':
+        '403':
           $ref: '#/components/responses/Not_Authenticated'
         '418':
           $ref: '#/components/responses/Client_Error'
