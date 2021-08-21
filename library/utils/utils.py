@@ -1,9 +1,6 @@
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from library.config.config import config
-from aiohttp import web
-import library.library_tables.table_navigation as sql
-import json
 
 
 class PostgreSQLStarter:
@@ -40,29 +37,3 @@ class PostgreSQLStarter:
         :return:
         """
         return self.connection, self.cursor
-
-
-def prepare_for_tab(data, values):
-    """
-    Prepares data for printing with the help of 'tabulate' function
-    :param data:
-    :param values:
-    :return:
-    """
-    output_list = []
-    if type(values[0]) is tuple or type(values[0]) is list:
-        for item in data:
-            to_append = []
-            for value in values:
-                if type(value) is tuple or type(value) is list:
-                    if 'list' not in value:
-                        to_append.append(item[value[0]].__dict__[value[1]])
-                    else:
-                        to_append.append('\n'.join(item[value[0]]))
-                else:
-                    to_append.append(item[value])
-            output_list.append(to_append)
-    else:
-        for item in data:
-            output_list.append([item.__dict__[value] for value in values])
-    return output_list
