@@ -6,3 +6,5 @@ pyyaml
 requests
 pytest
 python-dotenv
+numpy
+numpy-groupies

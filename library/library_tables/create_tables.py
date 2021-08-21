@@ -1,68 +1,37 @@
 import sqlalchemy as sql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
+from sqlalchemy import event
 from library.config.config import config
 import random as rd
 import enum
 from datetime import datetime
+import datetime as dt
 
 Base = declarative_base()
 
 
-class EnumStatus(enum.Enum):
-    active, blocked = 'active', 'blocked'
-
-
-class EnumFoodType(enum.Enum):
-    salad, first_course, main_course = 'salad', 'first_course', 'main_course'
-    soup, dessert, drink = 'soup', 'dessert', 'drink'
-
-
-class EnumOnline(enum.Enum):
-    true, false = 'true', 'false'
-
-
-class User(Base):
-    __tablename__ = 'users'
+class Book(Base):
+    __tablename__ = 'books'
     id = sql.Column(sql.Integer(), primary_key=True)
-    nickname = sql.Column(sql.Text(), nullable=False, unique=True)
-    status = sql.Column(sql.Enum(EnumStatus), nullable=False)
-    online = sql.Column(sql.Enum(EnumOnline), nullable=False)
+    book_name = sql.Column(sql.Text(), nullable=False)
+    book_instance = sql.Column(sql.Text(), nullable=False)
+    book_id = sql.orm.column_property(book_name + ' ' + book_instance)
+    author = sql.Column(sql.Text(), nullable=False)
+    publish_name = sql.Column(sql.Text(), nullable=False)
+    publish_year = sql.Column(sql.Integer(), nullable=False)
 
 
-class Recipe(Base):
-    __tablename__ = 'library'
+class Student(Base):
+    __tablename__ = 'students'
     id = sql.Column(sql.Integer(), primary_key=True)
-    user_id = sql.Column(sql.Integer(), sql.ForeignKey('users.id'), nullable=False)
-    create_date = sql.Column(sql.DateTime(), default=datetime.now(), nullable=False)
-    recipe_name = sql.Column(sql.String(50), nullable=False)
-    recipe_description = sql.Column(sql.Text(), default='No text added')
-    food_type = sql.Column(sql.Enum(EnumFoodType), nullable=False)
-    likes = sql.Column(sql.Integer(), default=0)
-    status = sql.Column(sql.Enum(EnumStatus), nullable=False)
-
-
-class Photo(Base):
-    __tablename__ = 'photos'
-    id = sql.Column(sql.Integer(), primary_key=True)
-    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('library.id'), nullable=False)
-    photo_name = sql.Column(sql.String(100))
-    photo_url = sql.Column(sql.Text(), nullable=False)
-
-
-class Step(Base):
-    __tablename__ = 'steps'
-    id = sql.Column(sql.Integer(), primary_key=True)
-    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('library.id'), nullable=False)
-    step_number = sql.Column(sql.Integer(), nullable=False)
-    step_description = sql.Column(sql.Text())
-
-
-class Tag(Base):
-    __tablename__ = 'tags'
-    id = sql.Column(sql.Integer(), primary_key=True)
-    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('library.id'), nullable=False)
-    tag_name = sql.Column(sql.String(50), nullable=False)
+    first_name = sql.Column(sql.Text(), nullable=False)
+    last_name = sql.Column(sql.Text(), nullable=False)
+    book_taken_id = sql.Column(sql.Integer(), sql.ForeignKey('books.id'), nullable=False)
+    trial_period = sql.Column(sql.Integer(), nullable=False)
+    date_taken = sql.Column(sql.DateTime(), default=datetime.now(), nullable=False)
+    date_returned = sql.Column(sql.DateTime(), default=datetime.now(), nullable=False)
+    # days_fowl = sql.Column(sql.Integer)
 
 
 def create_tables_orm(engine):
@@ -71,74 +40,54 @@ def create_tables_orm(engine):
 
 def drop_and_create_all():
     for func in [
-            # Base.metadata.drop_all,
+            Base.metadata.drop_all,
             create_tables_orm]:
         func(engine)
         print(f'{func.__name__} - successful')
-    for func in (add_sample_users, add_sample_recipes, add_sample_tags, add_sample_photos, add_sample_steps):
+    for func in (add_sample_books, add_sample_students):
         func()
         print(f'{func.__name__} - successful')
 
 
-def add_sample_users():
-    options = {0: 'active', 1: 'blocked'}
-    for i in range(50):
-        status = options[i] if i == 0 or i == 1 else rd.choice(['active', 'blocked'])
-        if status == 'blocked':
-            online = 'false'
-        else:
-            online = rd.choice(['true', 'false'])
-        u = User(nickname=f'user_{i + 1}', status=status, online=online)
-        session.add(u)
-        session.commit()
-
-
-def add_sample_recipes():
+def add_sample_books():
+    books_authors = (
+        ('Harry Potter', 'J.K. Rowling'),
+        ('Martin Eden', 'Jack London'),
+        ('Cabbages and Kings', 'O. Henry'),
+        ('Chocolat', 'Joanne Harris'),
+        ('The Chronicles of Narnia', 'C. S. Lewis'),
+        ('The Lord of the Rings', 'J. R. R. Tolkien'),
+        ('Dracula', 'Bram Stoker')
+    )
     for i in range(500):
-        status = rd.choice(['active', 'blocked'])
-        food_type = rd.choice(['salad', 'first_course', 'main_course', 'soup', 'dessert', 'drink'])
-        r = Recipe(
-            user_id=rd.randint(1, 50),
-            recipe_name=f'recipe_name_{i + 1}',
-            food_type=food_type,
-            likes=rd.randint(0, 100),
-            status=status
+        book_author = rd.choice(books_authors)
+        book = Book(
+            book_name=book_author[0],
+            book_instance=i+1,
+            author=book_author[1],
+            publish_name='Bloomberg',
+            publish_year=2012
         )
-        session.add(r)
+        session.add(book)
         session.commit()
 
 
-def add_sample_tags():
-    for i in range(2000):
-        t = Tag(
-            recipe_id=rd.randint(1, 500),
-            tag_name=f'tagname_{rd.randint(1, 20)}'
+def add_sample_students():
+    names = ('Anna Kapinos', 'Greg Kovshov', 'Ilya Indyk', 'Gleb Rudaev', 'Marina Glukhikh',
+             'Alexandr Shevtsov', 'Lera Scherbakova', 'Olga Nosova')
+    for i in range(1000):
+        name = rd.choice(names)
+        book_id = rd.randrange(50) + 1
+        trial_period = rd.randrange(7, 31)
+        stud = Student(
+            first_name=name.split(' ')[0],
+            last_name=name.split(' ')[1],
+            book_taken_id=book_id,
+            trial_period=trial_period,
+            date_returned=datetime.now() + dt.timedelta(days=rd.choice([7, 10, 20, 40]))
         )
-        session.add(t)
+        session.add(stud)
         session.commit()
-
-
-def add_sample_photos():
-    for i in range(2000):
-        p = Photo(
-            recipe_id=rd.randint(1, 500),
-            photo_name=f'photoname_{i + 1}',
-            photo_url=f'photo_url_{i + 1}'
-        )
-        session.add(p)
-        session.commit()
-
-
-def add_sample_steps():
-    for i in range(500):
-        for k in range(rd.randint(1, 7)):
-            step = Step(
-                recipe_id=i + 1,
-                step_number=k,
-                step_description=f'descr_step_{k}_recipe_{i}'
-            )
-            session.add(step)
-            session.commit()
 
 
 engine = sql.create_engine('{dialect}+{driver}://{user}:{password}@{host}/{database}'.format(**config['postgres']))
@@ -146,7 +95,9 @@ session = Session(bind=engine)
 
 if __name__ == '__main__':
     pass
-    # drop_and_create_all()
+    drop_and_create_all()
+
+    # print(*[item.__dict__ for item in session.query(Student).all()], sep='\n')
     # create_tables_orm(engine)
     # add_sample_users()
     # add_sample_recipes()
