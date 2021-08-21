@@ -1,8 +1,8 @@
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from recipes.config.config import config
+from library.config.config import config
 from aiohttp import web
-import recipes.library_tables.table_navigation as sql
+import library.library_tables.table_navigation as sql
 import json
 
 

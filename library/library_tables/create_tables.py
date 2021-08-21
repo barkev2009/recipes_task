@@ -1,7 +1,7 @@
 import sqlalchemy as sql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
-from recipes.config.config import config
+from library.config.config import config
 import random as rd
 import enum
 from datetime import datetime
@@ -31,7 +31,7 @@ class User(Base):
 
 
 class Recipe(Base):
-    __tablename__ = 'recipes'
+    __tablename__ = 'library'
     id = sql.Column(sql.Integer(), primary_key=True)
     user_id = sql.Column(sql.Integer(), sql.ForeignKey('users.id'), nullable=False)
     create_date = sql.Column(sql.DateTime(), default=datetime.now(), nullable=False)
@@ -45,7 +45,7 @@ class Recipe(Base):
 class Photo(Base):
     __tablename__ = 'photos'
     id = sql.Column(sql.Integer(), primary_key=True)
-    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('recipes.id'), nullable=False)
+    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('library.id'), nullable=False)
     photo_name = sql.Column(sql.String(100))
     photo_url = sql.Column(sql.Text(), nullable=False)
 
@@ -53,7 +53,7 @@ class Photo(Base):
 class Step(Base):
     __tablename__ = 'steps'
     id = sql.Column(sql.Integer(), primary_key=True)
-    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('recipes.id'), nullable=False)
+    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('library.id'), nullable=False)
     step_number = sql.Column(sql.Integer(), nullable=False)
     step_description = sql.Column(sql.Text())
 
@@ -61,7 +61,7 @@ class Step(Base):
 class Tag(Base):
     __tablename__ = 'tags'
     id = sql.Column(sql.Integer(), primary_key=True)
-    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('recipes.id'), nullable=False)
+    recipe_id = sql.Column(sql.Integer(), sql.ForeignKey('library.id'), nullable=False)
     tag_name = sql.Column(sql.String(50), nullable=False)
 
 

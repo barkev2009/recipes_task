@@ -1,5 +1,5 @@
-from recipes.utils.utils import PostgreSQLStarter
-from recipes.config.config import config
+from library.utils.utils import PostgreSQLStarter
+from library.config.config import config
 
 
 def init_db():

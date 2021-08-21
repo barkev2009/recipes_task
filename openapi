@@ -37,7 +37,7 @@ components:
         type: string
     page_number:
       name: page_number
-      description: Page of recipes table to show (0 is the first page)
+      description: Page of library table to show (0 is the first page)
       in: path
       required: true
       schema:
@@ -45,7 +45,7 @@ components:
       example: 0
 info:
   title: recipe_task
-  description: 'API for dealing with user recipes, includes admin and user API'
+  description: 'API for dealing with user library, includes admin and user API'
   contact:
     name: Grigory Kovshov
     email: barkev2009@bk.ru
@@ -102,7 +102,7 @@ paths:
       - $ref: '#/components/parameters/user_header'
   /users/first_ten/:
     get:
-      description: Returns the first ten active users, sorted by the quantity of their recipes in descending order
+      description: Returns the first ten active users, sorted by the quantity of their library in descending order
       tags:
         - users
       responses:
@@ -119,7 +119,7 @@ paths:
     post:
       description: Lets the verified user to post a new recipe
       tags:
-       - recipes
+       - library
       responses:
         '200':
           description: A successful post of new recipe
@@ -203,9 +203,9 @@ paths:
       - $ref: '#/components/parameters/user_header'
   '/recipes/{page_number}':
     get:
-      description: Returns a page of recipes (either all of them or juct active ones)
+      description: Returns a page of library (either all of them or juct active ones)
       tags:
-       - recipes
+       - library
       responses:
         '200':
           description: A user profile for a certain nickname
@@ -213,7 +213,7 @@ paths:
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
-      summary: Returns a page of recipes
+      summary: Returns a page of library
     parameters:
       - $ref: '#/components/parameters/page_number'
       - $ref: '#/components/parameters/user_header'
@@ -226,17 +226,17 @@ paths:
             - 'false'
   '/recipes/{page_number}/sort':
     get:
-      description: Returns a page of recipes sorted in a certain order (either all of them or juct active ones)
+      description: Returns a page of library sorted in a certain order (either all of them or juct active ones)
       tags:
-       - recipes
+       - library
       responses:
         '200':
-          description: A page of sorted recipes
+          description: A page of sorted library
         '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
-      summary: Sorts recipes
+      summary: Sorts library
     parameters:
       - $ref: '#/components/parameters/page_number'
       - $ref: '#/components/parameters/user_header'
@@ -265,17 +265,17 @@ paths:
             - 'false'
   '/recipes/{page_number}/filter':
     get:
-      description: Returns a page of recipes filtered by a certain object (either all of them or juct active ones)
+      description: Returns a page of library filtered by a certain object (either all of them or juct active ones)
       tags:
-       - recipes
+       - library
       responses:
         '200':
-          description: A page of filtered recipes
+          description: A page of filtered library
         '403':
           $ref: '#/components/responses/Not_Authenticated'
         '500':
           $ref: '#/components/responses/Internal_Error'
-      summary: "Filters recipes "
+      summary: "Filters library "
     parameters:
       - $ref: '#/components/parameters/page_number'
       - $ref: '#/components/parameters/user_header'
@@ -306,7 +306,7 @@ paths:
     get:
       description: Returns a recipe by a certain ID with all of its traits
       tags:
-       - recipes
+       - library
       responses:
         '200':
           description: A full recipe profile
@@ -493,7 +493,7 @@ paths:
           $ref: '#/components/responses/Client_Error'
         '500':
           $ref: '#/components/responses/Internal_Error'
-      summary: Allows the user to like recipes
+      summary: Allows the user to like library
     parameters:
       - $ref: '#/components/parameters/user_header'
       - name: recipe_id
@@ -508,8 +508,8 @@ tags:
     description: All operations for registering a new user and for checking in or out of the profile.
   - name: Admin API
     description: All operations, available for admin only
-  - name: recipes
-    description: All operations for dealing with recipes
+  - name: library
+    description: All operations for dealing with library
   - name: users
     description: All operations for dealing with user profiles
   - name: Additional API
