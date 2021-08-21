@@ -11,7 +11,7 @@ REST API for working with recipes' and users' database (scroll down for Russian 
   - pytest
 
 **Postman** is advised to be installed for better experience 
-of testing the API.
+of testing the API. 
 
 To start working with the API please follow the steps:
 1. Install requirements with command ```pip install -r requirements.txt```
