@@ -1,7 +1,7 @@
 import sqlalchemy as sql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
-from library.config.config import config
+from config.config import config
 import random as rd
 from datetime import datetime
 import datetime as dt
@@ -49,7 +49,11 @@ def drop_and_create_all():
 
 def add_sample_books():
     books_authors = (
-        ('Harry Potter', 'J.K. Rowling'),
+        ('Harry Potter 1', 'J.K. Rowling'),
+        ('Harry Potter 2', 'J.K. Rowling'),
+        ('Harry Potter 3', 'J.K. Rowling'),
+        ('Harry Potter 4', 'J.K. Rowling'),
+        ('Harry Potter 5', 'J.K. Rowling'),
         ('Martin Eden', 'Jack London'),
         ('Cabbages and Kings', 'O. Henry'),
         ('Chocolat', 'Joanne Harris'),
@@ -77,12 +81,13 @@ def add_sample_students():
         name = rd.choice(names)
         book_id = rd.randrange(50) + 1
         trial_period = rd.randrange(7, 31)
+        return_period = rd.choice([7, 10, 20, 40]) if name != 'Greg Kovshov' else 1000
         stud = Student(
             first_name=name.split(' ')[0],
             last_name=name.split(' ')[1],
             book_taken_id=book_id,
             trial_period=trial_period,
-            date_returned=datetime.now() + dt.timedelta(days=rd.choice([7, 10, 20, 40]))
+            date_returned=datetime.now() + dt.timedelta(days=return_period)
         )
         session.add(stud)
         session.commit()

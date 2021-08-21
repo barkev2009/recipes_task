@@ -1,6 +1,6 @@
 from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from library.config.config import config
+from config.config import config
 
 
 class PostgreSQLStarter:
