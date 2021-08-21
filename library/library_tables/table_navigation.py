@@ -1,47 +1,55 @@
-import sqlalchemy as sql
-from sqlalchemy.orm import Session
-import numpy as np
-from numpy_groupies import aggregate
-from datetime import datetime
-import datetime as dt
-from library.library_tables.create_tables import Book, Student
-from library.config.config import config
-from tabulate import tabulate
+from library.utils.utils import PostgreSQLStarter
 
 
-def calculate_fowls():
-    query = np.array(session.query(Student.date_taken, Student.date_returned, Student.trial_period,
-                                   Student.first_name, Student.last_name).order_by(Student.first_name).all())
-    reading_period = (query[:, 1] - query[:, 0]).astype('timedelta64[D]')
-    trial_period = np.array([item.value for item in query[:, 2]])
-    days_fowled = (reading_period - trial_period).astype('int')
-    days_fowled = np.where(days_fowled < 0, 0, days_fowled)
-    full_names = query[:, -2] + ' ' + query[:, -1]
-    table = np.dstack([days_fowled, full_names]).reshape(days_fowled.shape[0], 2)
-
-    group_names = np.unique(full_names)
-    overall_days = []
-    for name in group_names:
-        overall_days.append(np.sum(np.where((table[:, 1] == name), table[:, 0], 0)))
-    table = np.dstack([np.array(overall_days), group_names]).reshape(group_names.shape[0], 2)
-
-    print(tabulate(
-        table,
-        headers=['Days of not return', 'Full name']
-    ))
+def print_most_populer_author():
+    cursor.execute("""  SELECT 
+                            author, count(author) 
+                        FROM 
+                            students 
+                        JOIN 
+                            books
+                        ON
+                            students.book_taken_id=books.id 
+                        GROUP BY 
+                            author 
+                        ORDER BY 
+                            count(author) 
+                            DESC
+                        """)
+    print(cursor.fetchone())
+    # print(*cursor.fetchall(), sep='\n')
 
 
-def test_query():
-    query = session.query()
-    test = session.query(Student.trial_period).all()
-    print(query)
+def fowlest_reader():
+    cursor.execute("""  SELECT 
+                            SUM(
+                                GREATEST(
+                                    ROUND(
+                                        EXTRACT(EPOCH FROM date_returned - date_taken)/(60 * 60 * 24) - trial_period
+                                        ), 
+                                        0
+                                    )
+                                ), 
+                            TRIM(CONCAT(first_name, ' ', last_name))
+                        FROM 
+                            students 
+                        GROUP BY
+                            TRIM(CONCAT(first_name, ' ', last_name))
+                        ORDER BY
+                           SUM(
+                                GREATEST(
+                                    ROUND(
+                                        EXTRACT(EPOCH FROM date_returned - date_taken)/(60 * 60 * 24) - trial_period
+                                        ), 
+                                        0
+                                    )
+                                )
+                            DESC 
+                    """)
+    print(cursor.fetchone())
 
 
-engine = sql.create_engine('{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}'.format(
-    **config['postgres']))
-session = Session(bind=engine)
-
+conn, cursor = PostgreSQLStarter().get_connection_and_cursor()
 if __name__ == '__main__':
-    pass
-    calculate_fowls()
-    # test_query()
+    print_most_populer_author()
+    fowlest_reader()

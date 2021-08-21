@@ -1,10 +1,8 @@
 import sqlalchemy as sql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
-from sqlalchemy import event
 from library.config.config import config
 import random as rd
-import enum
 from datetime import datetime
 import datetime as dt
 
@@ -97,10 +95,3 @@ if __name__ == '__main__':
     pass
     drop_and_create_all()
 
-    # print(*[item.__dict__ for item in session.query(Student).all()], sep='\n')
-    # create_tables_orm(engine)
-    # add_sample_users()
-    # add_sample_recipes()
-    # add_sample_photos()
-    # add_sample_tags()
-    # print([item.__dict__['photo_url'] for item in session.query(Photo).order_by(Photo.id).all()])
