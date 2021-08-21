@@ -1,5 +1,5 @@
 import psycopg2
-from recipes.utils.utils import PostgreSQLStarter
+from library.utils.utils import PostgreSQLStarter
 import requests
 import json
 from dotenv import dotenv_values

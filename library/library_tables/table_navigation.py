@@ -1,8 +1,8 @@
 import sqlalchemy as sql
 from sqlalchemy.orm import Session
 from datetime import datetime
-from recipes.library_tables.create_tables import User, Recipe, Photo, Tag, Step, EnumStatus, EnumOnline
-from recipes.config.config import config, FOOD_TYPES
+from library.library_tables.create_tables import User, Recipe, Photo, Tag, Step, EnumStatus, EnumOnline
+from library.config.config import config, FOOD_TYPES
 
 
 def check_for_client_error(func):
@@ -61,7 +61,7 @@ def get_user_profile(username):
 
 def get_first_ten_by_recipes():
     """
-    Returns the first ten active users by the quantity of their recipes,
+    Returns the first ten active users by the quantity of their library,
     sorted in descending order
     :return:
     """
@@ -72,7 +72,7 @@ def get_first_ten_by_recipes():
 
 def get_active_recipes(offset=0, limit=100, active_only=True):
     """
-    Returns the table of active (or all) recipes, includes pagination
+    Returns the table of active (or all) library, includes pagination
     :param offset:
     :param limit:
     :param active_only:
@@ -86,7 +86,7 @@ def get_active_recipes(offset=0, limit=100, active_only=True):
 
 def sort_recipes(sort_by: str, desc=True, offset=0, limit=100, active_only=True):
     """
-    Returns active (or all) recipes, sorted by a certain item, includes pagination
+    Returns active (or all) library, sorted by a certain item, includes pagination
     :param sort_by: object type to sort by, can be either date, likes or name
     :param desc:
     :param offset:
@@ -109,7 +109,7 @@ def sort_recipes(sort_by: str, desc=True, offset=0, limit=100, active_only=True)
 
 def filter_recipes(object: str, filter_item: str, offset=0, limit=100, active_only=True):
     """
-    Returns active (or all) recipes, filtered by a certain item, includes pagination
+    Returns active (or all) library, filtered by a certain item, includes pagination
     :param object: object type to filter by, can be either recipe_name, tag, food_type, user or photo_name
     :param filter_item: value of the object
     :param offset:
