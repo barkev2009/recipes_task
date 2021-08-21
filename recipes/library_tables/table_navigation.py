@@ -1,7 +1,7 @@
 import sqlalchemy as sql
 from sqlalchemy.orm import Session
 from datetime import datetime
-from recipes.recipe_tables.create_tables import User, Recipe, Photo, Tag, Step, EnumStatus, EnumOnline
+from recipes.library_tables.create_tables import User, Recipe, Photo, Tag, Step, EnumStatus, EnumOnline
 from recipes.config.config import config, FOOD_TYPES
 
 

@@ -2,7 +2,7 @@ from psycopg2 import connect
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from recipes.config.config import config
 from aiohttp import web
-import recipes.recipe_tables.table_navigation as sql
+import recipes.library_tables.table_navigation as sql
 import json
 
 
@@ -66,60 +66,3 @@ def prepare_for_tab(data, values):
         for item in data:
             output_list.append([item.__dict__[value] for value in values])
     return output_list
-
-
-def standard_validation_wrapper(func):
-    """
-    Decorator for standard Internal Error response
-    :param func:
-    :return:
-    """
-    async def wrapper(request: web.Request):
-        try:
-            return await func(request)
-        except Exception as e:
-            return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)
-
-    return wrapper
-
-
-def user_validation_wrapper(func):
-    """
-    Decorator for validating the user (check if he is online and not blocked)
-    :param func:
-    :return:
-    """
-    async def wrapper(request: web.Request):
-        try:
-            if sql.check_for_ability(request.headers.get('user')):
-                return await func(request)
-            else:
-                return web.Response(
-                    text=json.dumps({'message': 'failed to authenticate'}, indent=4),
-                    status=403
-                )
-        except Exception as e:
-            return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)
-
-    return wrapper
-
-
-def user_validation_block_only_wrapper(func):
-    """
-    Decorator for validating the user (check if he is online)
-    :param func:
-    :return:
-    """
-    async def wrapper(request: web.Request):
-        try:
-            if sql.check_for_ability(request.headers.get('user'), active_only=True):
-                return await func(request)
-            else:
-                return web.Response(
-                    text=json.dumps({'message': 'failed to authenticate, blocked user'}, indent=4),
-                    status=403
-                )
-        except Exception as e:
-            return web.Response(text=json.dumps({'message': 'failure', 'result': str(e)}), status=500)
-
-    return wrapper

@@ -1,6 +1,7 @@
 import sqlalchemy as sql
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
+from recipes.config.config import config
 import random as rd
 import enum
 from datetime import datetime
@@ -140,12 +141,12 @@ def add_sample_steps():
             session.commit()
 
 
-engine = sql.create_engine('postgresql+psycopg2://postgres:1111@localhost/recipes_db_v1')
+engine = sql.create_engine('{dialect}+{driver}://{user}:{password}@{host}/{database}'.format(**config['postgres']))
 session = Session(bind=engine)
 
 if __name__ == '__main__':
     pass
-    drop_and_create_all()
+    # drop_and_create_all()
     # create_tables_orm(engine)
     # add_sample_users()
     # add_sample_recipes()
