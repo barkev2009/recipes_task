@@ -30,6 +30,8 @@ or run ```pytest tests.py```
 summarizing the number of days of not returning the book in time (we do it for all books of the student). The student
 with the highest number of days without returning the book in time is "the fowlest".
 
+___
+
 # library_task
 
 Небольшой репозиторий для ответов на вопросы по заданию с библиотекой.
