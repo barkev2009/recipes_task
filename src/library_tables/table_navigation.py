@@ -19,7 +19,6 @@ def most_popular_author(year):
                             DESC
                         """.format(year))
     return cursor.fetchone()
-    # print(*cursor.fetchall(), sep='\n')
 
 
 def fowlest_reader():
