@@ -1,4 +1,4 @@
-from src.table_navigation import most_popular_author, fowlest_reader
+from src.library_tables.table_navigation import most_popular_author, fowlest_reader
 
 
 def test_most_popular_author():
