@@ -1,7 +1,7 @@
 from library.utils.utils import PostgreSQLStarter
 
 
-def print_most_populer_author():
+def most_popular_author():
     cursor.execute("""  SELECT 
                             author, count(author) 
                         FROM 
@@ -16,7 +16,7 @@ def print_most_populer_author():
                             count(author) 
                             DESC
                         """)
-    print(cursor.fetchone())
+    return cursor.fetchone()
     # print(*cursor.fetchall(), sep='\n')
 
 
@@ -46,10 +46,10 @@ def fowlest_reader():
                                 )
                             DESC 
                     """)
-    print(cursor.fetchone())
+    return cursor.fetchone()
 
 
 conn, cursor = PostgreSQLStarter().get_connection_and_cursor()
 if __name__ == '__main__':
-    print_most_populer_author()
+    most_popular_author()
     fowlest_reader()
