@@ -28,11 +28,11 @@ def most_popular_author(year: int) -> tuple:
     return cursor.fetchone()
 
 
-def fowlest_reader() -> tuple:
+def foulest_reader() -> tuple:
     """
-    Calculates "the fowlest" reader among students
+    Calculates "the foulest" reader among students
 
-    :return: a tuple with the full name of "the fowlset" reader
+    :return: a tuple with the full name of "the foulest" reader
             and the number of days of not returning books in time
     """
     sum_of_days_without_return_sub_query = """
@@ -66,4 +66,4 @@ conn, cursor = PostgreSQLStarter().get_connection_and_cursor()
 if __name__ == '__main__':
     print(most_popular_author(2021))
     print(most_popular_author(2020))
-    print(fowlest_reader())
+    print(foulest_reader())

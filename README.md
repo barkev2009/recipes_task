@@ -26,9 +26,9 @@ or run ```pytest tests.py```
 * By author's popularity per year in Task 2 we mean the number of times students took a single (or multiple) books
  of **one** author per given year.
 
-* By "fowl reader" in Task 3 we mean a student who did not return a book in time. We calculate the "fowl degree" by
+* By "foul reader" in Task 3 we mean a student who did not return a book in time. We calculate the "foul degree" by
 summarizing the number of days of not returning the book in time (we do it for all books of the student). The student
-with the highest number of days without returning the book in time is "the fowlest".
+with the highest number of days without returning the book in time is "the foulest".
 
 ___
 
