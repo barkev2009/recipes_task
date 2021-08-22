@@ -1,65 +1,37 @@
-# library_task
+# test_task
 
-A small repo dedicated to library task (scroll down for Russian version).
+REST API for working with transactions history. 
 
-#### Technology stack:
-* Language: Python 3.6
-* Database: PostgreSQL 13.3
-* Main libraries:
-  - sqlalchemy
-  - pytest
+**PostgreSQL** and **Postman** must be installed for better experience of testing the API.
 
-To check the answers please follow the steps:
-* Install PostgreSQL 13.3 and launch the server (configurations for the server are in ```src/config/config.yaml```)
-* Initialize database and tables:
-```bash
-$ cd library
-$ python src/library_tables/init_db.py
-$ python src/library_tables/create_tables.py
-```
-* You can either inspect the code with answers in ```src/library_tables/table_navigation.py``` 
-or run ```pytest tests.py```
+To start working with the API please follow the steps:
+1. Install requirements with command ```pip install -r requirements.txt```
+2. Initialize the database **postgres_db** and tables **limits** and **history** with the help of 
+```app/create_tables.py```. The name of the database can be changed in ```app/__init__.py```.
+3. Start ```app/main.py``` and feel free to test the API, either through ```test.py``` or via Postman app.
+>All configurations for working with PostgreSQL and ability to enable/disable parsing exchange rates
+>are available in ```app/__init__.py```.
 
-* The SQL schema for the task is shown below.
-![image info](schema.png)
 
-* By author's popularity per year in Task 2 we mean the number of times students took a single (or multiple) books
- of **one** author per given year.
+The API detailed description can be accessed via ```openapi.json```. 
+Check it out [here](https://editor.swagger.io/) for better document view.
 
-* By "foul reader" in Task 3 we mean a student who did not return a book in time. We calculate the "foul degree" by
-summarizing the number of days of not returning the book in time (we do it for all books of the student). The student
-with the highest number of days without returning the book in time is "the foulest".
+![screenshot of sample](https://i0.wp.com/marketplace-cdn.atlassian.com/files/images/3a8b0e69-dbfa-474f-9eb3-101d1449087e.png?resize=650,400)
 
-___
+# test_task
 
-# library_task
+REST API для работы с историей транзакций.
 
-Небольшой репозиторий для ответов на вопросы по заданию с библиотекой.
+Для более удобного тестирования и работы с API необходимо установить 
+**PostgreSQL** and **Postman**.
 
-#### Стек технологий:
-* Язык: Python 3.6
-* Датабаза: PostgreSQL 13.3
-* Основные библиотеки:
-  - sqlalchemy
-  - pytest
+Для начала работы с API следуйте, пожалуйста, инструкции ниже:
+1. Установите библиотеки через команду ```pip install -r requirements.txt```
+2. Инициализируйте базу данных **postgres_db** и таблицы **limits** и **history** с помощью
+```app/create_tables.py```. Название БД может быть изменено в ```app/__init__.py```.
+3. Запустите ```app/main.py``` и тестируйте API либо через ```test.py```, либо через приложение Postman.
+>Все конфигурации для работы с PostgreSQL, а также возможность включить/отключить парсинг курсов валют,
+>доступны в файле ```app/__init__.py```.
 
-Для проверки ответов следуйте, пожалуйста, инструкции ниже:
-* Установите PostgreSQL 13.3 и запустите сервер (конфигурации для сервера находятся в ```src/config/config.yaml```)
-* Инициализируйте базу данных и таблицы с помощью:
-```bash
-$ cd library
-$ python src/library_tables/init_db.py
-$ python src/library_tables/create_tables.py
-```
-* Можете либо проверить ответы на задания в  ```src/library_tables/table_navigation.py```,
-либо запустить ```pytest tests.py```
-
-* SQL схема для выполнения задания показана на рисунке ниже.
-![image info](schema.png)
-
-* Под популярностью автора за год во втором задании понимается количество взятий разных книг **одного** автора студентами 
-в течение заданного года.
-
-* Под "злостным читателем" в третьем задании понимается тот студент, который просрочил сдачу книги обратно в библиотеку. 
-Степень "злостности" рассчитывается путем подсчета количества просроченных дней по каждой из книг. Самым "злостным"
-будет читатель с самой большой просрочкой.
+Подробное описание API смотрите в файле ```openapi.json```. 
+Проследуйте по [ссылке](https://editor.swagger.io/) для более наглядного интерфейса.

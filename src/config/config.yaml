@@ -1,8 +1,0 @@
-postgres:
-  database: library
-  host: 127.0.0.1
-  password: 1111
-  port: 5432
-  user: postgres
-  dialect: postgresql
-  driver: psycopg2
