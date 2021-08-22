@@ -99,4 +99,3 @@ session = Session(bind=engine)
 if __name__ == '__main__':
     pass
     drop_and_create_all()
-
