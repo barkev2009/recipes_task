@@ -2,18 +2,18 @@ from src.utils import PostgreSQLStarter
 
 
 def most_popular_author():
-    cursor.execute("""  SELECT 
-                            author, count(author) 
-                        FROM 
-                            students 
-                        JOIN 
+    cursor.execute("""  SELECT
+                            author, count(author)
+                        FROM
+                            students
+                        JOIN
                             books
                         ON
-                            students.book_taken_id=books.id 
-                        GROUP BY 
-                            author 
-                        ORDER BY 
-                            count(author) 
+                            students.book_taken_id=books.id
+                        GROUP BY
+                            author
+                        ORDER BY
+                            count(author)
                             DESC
                         """)
     return cursor.fetchone()
@@ -21,18 +21,18 @@ def most_popular_author():
 
 
 def fowlest_reader():
-    cursor.execute("""  SELECT 
+    cursor.execute("""  SELECT
                             SUM(
                                 GREATEST(
                                     ROUND(
                                         EXTRACT(EPOCH FROM date_returned - date_taken)/(60 * 60 * 24) - trial_period
-                                        ), 
+                                        ),
                                         0
                                     )
-                                ), 
+                                ),
                             TRIM(CONCAT(first_name, ' ', last_name))
-                        FROM 
-                            students 
+                        FROM
+                            students
                         GROUP BY
                             TRIM(CONCAT(first_name, ' ', last_name))
                         ORDER BY
@@ -40,11 +40,11 @@ def fowlest_reader():
                                 GREATEST(
                                     ROUND(
                                         EXTRACT(EPOCH FROM date_returned - date_taken)/(60 * 60 * 24) - trial_period
-                                        ), 
+                                        ),
                                         0
                                     )
                                 )
-                            DESC 
+                            DESC
                     """)
     return cursor.fetchone()
 
