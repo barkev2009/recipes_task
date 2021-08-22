@@ -1,5 +1,5 @@
+from config import config
 from utils import PostgreSQLStarter
-from config.config import config
 
 
 def init_db():

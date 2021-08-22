@@ -1,4 +1,4 @@
-from utils import PostgreSQLStarter
+from src.utils import PostgreSQLStarter
 
 
 def most_popular_author():
