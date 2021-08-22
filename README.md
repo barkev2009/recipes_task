@@ -11,6 +11,10 @@ A small repo dedicated to library task (scroll down for Russian version).
 
 To check the answers please follow the steps:
 * Install PostgreSQL 13.3 and launch the server (configurations for the server are in ```src/config/config.yaml```)
+* Install dependencies with:
+```bash
+$ pip install -r requirements.txt
+```
 * Initialize database and tables:
 ```bash
 $ cd library
@@ -45,6 +49,10 @@ ___
 
 Для проверки ответов следуйте, пожалуйста, инструкции ниже:
 * Установите PostgreSQL 13.3 и запустите сервер (конфигурации для сервера находятся в ```src/config/config.yaml```)
+* Установите зависимости с помощью:
+```bash
+$ pip install -r requirements.txt
+```
 * Инициализируйте базу данных и таблицы с помощью:
 ```bash
 $ cd library
