@@ -34,6 +34,7 @@ class PostgreSQLStarter:
     def get_connection_and_cursor(self):
         """
         Returns connection and cursor instances to the user
-        :return:
+
+        :return: connection and cursor for connecting to the database
         """
         return self.connection, self.cursor

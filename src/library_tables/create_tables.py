@@ -10,6 +10,9 @@ Base = declarative_base()
 
 
 class Book(Base):
+    """
+    Instance of the Base class, the map for books table
+    """
     __tablename__ = 'books'
     id = sql.Column(sql.Integer(), primary_key=True)
     book_name = sql.Column(sql.Text(), nullable=False)
@@ -20,6 +23,9 @@ class Book(Base):
 
 
 class Student(Base):
+    """
+    Instance of the Base class, the map for students table
+    """
     __tablename__ = 'students'
     id = sql.Column(sql.Integer(), primary_key=True)
     first_name = sql.Column(sql.Text(), nullable=False)
@@ -31,10 +37,18 @@ class Student(Base):
 
 
 def create_tables_orm(engine):
+    """
+    Creates all the tables with ORM on a given engine
+
+    :param engine: SQL engine
+    """
     Base.metadata.create_all(engine)
 
 
 def drop_and_create_all():
+    """
+    Drops and creates all tables in the database, filling them with sample rows
+    """
     for func in [
             Base.metadata.drop_all,
             create_tables_orm]:
@@ -46,6 +60,9 @@ def drop_and_create_all():
 
 
 def add_sample_books():
+    """
+    Fills the books table with sample rows
+    """
     books_authors = (
         ('Harry Potter 1', 'J.K. Rowling'),
         ('Harry Potter 2', 'J.K. Rowling'),
@@ -73,6 +90,9 @@ def add_sample_books():
 
 
 def add_sample_students():
+    """
+    Fills the students table with sample rows
+    """
     names = ('Anna Kapinos', 'Greg Kovshov', 'Ilya Indyk', 'Gleb Rudaev', 'Marina Glukhikh',
              'Alexandr Shevtsov', 'Lera Scherbakova', 'Olga Nosova')
     for i in range(1000):

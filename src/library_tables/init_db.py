@@ -3,6 +3,9 @@ from src.utils import PostgreSQLStarter
 
 
 def init_db():
+    """
+    Initializes the library database
+    """
     conn, cursor = PostgreSQLStarter(database_exists=False).get_connection_and_cursor()
     cursor.execute(f'create database {config["postgres"]["database"]}')
     conn.commit()

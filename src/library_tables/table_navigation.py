@@ -1,7 +1,14 @@
 from src.utils import PostgreSQLStarter
 
 
-def most_popular_author(year):
+def most_popular_author(year: int) -> tuple:
+    """
+    Calculates the most popular author within a year
+
+    :param year: a year to search the most popular author in
+    :return: a tuple of the most popular author and the number of times
+            his/her books were taken by students within a given year
+    """
     cursor.execute("""  SELECT
                             author, count(author)
                         FROM
@@ -21,7 +28,13 @@ def most_popular_author(year):
     return cursor.fetchone()
 
 
-def fowlest_reader():
+def fowlest_reader() -> tuple:
+    """
+    Calculates "the fowlest" reader among students
+
+    :return: a tuple with the full name of "the fowlset" reader
+            and the number of days of not returning books in time
+    """
     sum_of_days_without_return_sub_query = """
         SUM(
             GREATEST(
