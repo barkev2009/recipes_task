@@ -35,9 +35,9 @@ jobs:
     - name: Initializing database and tables
       run: |
         # Initializing database
-        python library_tables/init_db.py
+        python src/init_db.py
         # Creating tables
-        python library_tables/create_tables.py
+        python src/create_tables.py
     - name: Test with pytest
       run: |
         pytest tests.py
