@@ -37,7 +37,7 @@ jobs:
         # installing PostgreSQL
         sudo apt install postgresql
         # connecting to postgres
-        sudo -i -u postgres
+        sudo pg_createcluster 9.1 main --start
     - name: Initializing database and tables
       run: |
         # Initializing database
