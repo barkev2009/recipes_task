@@ -1,7 +1,7 @@
 from src.utils import PostgreSQLStarter
 
 
-def most_popular_author():
+def most_popular_author(year):
     cursor.execute("""  SELECT
                             author, count(author)
                         FROM
@@ -10,46 +10,48 @@ def most_popular_author():
                             books
                         ON
                             students.book_taken_id=books.id
+                        WHERE
+                            EXTRACT(YEAR FROM date_taken) = {}
                         GROUP BY
                             author
                         ORDER BY
                             count(author)
                             DESC
-                        """)
+                        """.format(year))
     return cursor.fetchone()
     # print(*cursor.fetchall(), sep='\n')
 
 
 def fowlest_reader():
+    sum_of_days_without_return_sub_query = """
+        SUM(
+            GREATEST(
+                ROUND(
+                    EXTRACT(EPOCH FROM date_returned - date_taken)/(60 * 60 * 24) - trial_period
+                    ),
+                    0
+                )
+            )
+        """
+    full_names_sub_query = """TRIM(CONCAT(first_name, ' ', last_name))"""
     cursor.execute("""  SELECT
-                            SUM(
-                                GREATEST(
-                                    ROUND(
-                                        EXTRACT(EPOCH FROM date_returned - date_taken)/(60 * 60 * 24) - trial_period
-                                        ),
-                                        0
-                                    )
-                                ),
-                            TRIM(CONCAT(first_name, ' ', last_name))
+                            {}, {}
                         FROM
                             students
                         GROUP BY
-                            TRIM(CONCAT(first_name, ' ', last_name))
+                            {}
                         ORDER BY
-                           SUM(
-                                GREATEST(
-                                    ROUND(
-                                        EXTRACT(EPOCH FROM date_returned - date_taken)/(60 * 60 * 24) - trial_period
-                                        ),
-                                        0
-                                    )
-                                )
+                           {}
                             DESC
-                    """)
+                    """.format(sum_of_days_without_return_sub_query,
+                               full_names_sub_query,
+                               full_names_sub_query,
+                               sum_of_days_without_return_sub_query))
     return cursor.fetchone()
 
 
 conn, cursor = PostgreSQLStarter().get_connection_and_cursor()
 if __name__ == '__main__':
-    most_popular_author()
-    fowlest_reader()
+    print(most_popular_author(2021))
+    print(most_popular_author(2020))
+    print(fowlest_reader())

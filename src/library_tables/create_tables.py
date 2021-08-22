@@ -14,7 +14,6 @@ class Book(Base):
     id = sql.Column(sql.Integer(), primary_key=True)
     book_name = sql.Column(sql.Text(), nullable=False)
     book_instance = sql.Column(sql.Text(), nullable=False)
-    book_id = sql.orm.column_property(book_name + ' ' + book_instance)
     author = sql.Column(sql.Text(), nullable=False)
     publish_name = sql.Column(sql.Text(), nullable=False)
     publish_year = sql.Column(sql.Integer(), nullable=False)
@@ -29,7 +28,6 @@ class Student(Base):
     trial_period = sql.Column(sql.Integer(), nullable=False)
     date_taken = sql.Column(sql.DateTime(), default=datetime.now(), nullable=False)
     date_returned = sql.Column(sql.DateTime(), default=datetime.now(), nullable=False)
-    # days_fowl = sql.Column(sql.Integer)
 
 
 def create_tables_orm(engine):
@@ -64,11 +62,11 @@ def add_sample_books():
     for i in range(500):
         book_author = rd.choice(books_authors)
         book = Book(
-            book_name=book_author[0],
-            book_instance=i+1,
-            author=book_author[1],
+            book_name=book_author[0] if i < 450 else 'Dracula',
+            book_instance=rd.randrange(10000),
+            author=book_author[1] if i < 450 else 'Bram Stoker',
             publish_name='Bloomberg',
-            publish_year=2012
+            publish_year=2012 if book_author[0] != 'Dracula' else 2013
         )
         session.add(book)
         session.commit()
@@ -79,15 +77,17 @@ def add_sample_students():
              'Alexandr Shevtsov', 'Lera Scherbakova', 'Olga Nosova')
     for i in range(1000):
         name = rd.choice(names)
-        book_id = rd.randrange(50) + 1
+        book_id = rd.randrange(500) + 1
         trial_period = rd.randrange(7, 31)
         return_period = rd.choice([7, 10, 20, 40]) if name != 'Greg Kovshov' else 1000
+        date_taken = datetime.now() if book_id < 450 else datetime.now() - dt.timedelta(days=365)
         stud = Student(
             first_name=name.split(' ')[0],
             last_name=name.split(' ')[1],
             book_taken_id=book_id,
             trial_period=trial_period,
-            date_returned=datetime.now() + dt.timedelta(days=return_period)
+            date_taken=date_taken,
+            date_returned=date_taken + dt.timedelta(days=return_period)
         )
         session.add(stud)
         session.commit()
