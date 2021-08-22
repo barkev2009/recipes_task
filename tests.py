@@ -1,5 +1,4 @@
-from library.config.config import config
-from library.library_tables.table_navigation import most_popular_author, fowlest_reader
+from library_tables.table_navigation import most_popular_author, fowlest_reader
 
 
 def test_most_popular_author():
